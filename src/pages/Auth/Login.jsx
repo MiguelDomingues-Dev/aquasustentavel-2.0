@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState } from 'react';
 import CriarAccount from "../../ui/components/paragraph/CriarAccount";
-import Cabecalho from '../../ui/components/cabecalhoLoginCadastrar/cabecalho';
+import Cabecalho from '../../ui/components/cabecalhoLoginCadastrar/Cabecalho';
 import Button from "../../ui/components/button/Button";
 import InputsLa from "../../ui/components/inputs/Input"; // Input de login
 import InputsPa from "../../ui/components/inputs/InputPas"; // Input de senha

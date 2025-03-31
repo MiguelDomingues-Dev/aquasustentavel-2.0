@@ -1,6 +1,6 @@
 import * as React from 'react';
 import '../../ui/templates/overview/overview.css'
-import SideBar from '../../ui/components/sidebar/Sidebar';
+import SideBar from '../../ui/components/sideBar/SideBar';
 import NavBar from '../../ui/components/navbar/NavBar';
 import Cards from '../../ui/components/cards/Cards';
 import Historico from '../../ui/components/historico/Historico';
