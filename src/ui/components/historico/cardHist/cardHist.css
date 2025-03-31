@@ -1,0 +1,26 @@
+.containerCardHist {
+    background-color: #004a23;
+    color: #ffffff;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.infoConsumo {
+    display: flex;
+    flex-direction: column;
+    gap: 10px 0px;
+}
+
+.date {
+    font-size: 0.8rem;
+    color: #66a678;
+}
+
+.valueConsumo {
+    font-size: 1.1rem;
+    font-weight: bold;
+}

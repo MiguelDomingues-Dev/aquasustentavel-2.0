@@ -1,0 +1,10 @@
+.headerSideBar {
+    display: flex;
+    flex-direction: column;
+}
+
+.headerSideBar img {
+    align-self: center;
+    width: 200px;
+    height: 60px;
+}

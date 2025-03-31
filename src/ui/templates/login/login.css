@@ -1,0 +1,53 @@
+.containerLogin {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 100%;
+}
+
+.body h2 {
+    align-self: center;
+    color: #525252;
+    font-size: 1.75rem;
+    font-weight: 600;
+}
+
+.body form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem 0px;
+    width: 100%;
+}
+
+.body form .inputSingle {
+    position: relative;
+}
+
+.body form .inputSingle label {
+    position: absolute;
+    left: 0;
+    bottom: 5px;
+    transition: 0.5s ease-in-out;
+    font-size: 0.875rem;
+    color: #A1A1A1;
+}
+
+.body form .inputSingle .iconEye{
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #6F7E8C;
+}

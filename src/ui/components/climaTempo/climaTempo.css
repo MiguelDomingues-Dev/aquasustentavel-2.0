@@ -1,0 +1,42 @@
+.climaTempo {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18.75rem;
+    height: 96%;
+    border-radius: 15px;
+    background: #0B3245;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);    
+}
+
+.backgroundImg {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(8px); /* Aplica o efeito de blur */
+    background: rgba(0, 0, 0, 0.179); /* Fundo escuro semi-transparente */
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Overlay para indicar que está em construção */
+.backgroundImg::after {
+    content: "🚧 Em Construção 🚧";
+    position: absolute;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    background: rgba(0, 0, 0, 0.7);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+}

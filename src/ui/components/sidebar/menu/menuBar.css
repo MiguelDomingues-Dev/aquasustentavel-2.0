@@ -1,0 +1,27 @@
+.containerMenu {
+    width: 100%;
+    height: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.containerMenu p {
+    padding: 10px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 1.5rem;
+    border-radius: 10px;
+}
+
+.containerMenu p:hover {
+    transition: 1s ease-in-out;
+    background-color: rgba(0, 178, 27, 0.226);
+}
+
+.containerMenu p.active {
+    font-weight: bold;
+    color: rgb(255, 255, 255); /* Cor para destacar o item ativo */
+    background-color: rgba(0, 178, 27, 0.4039215686);
+}

@@ -1,0 +1,14 @@
+.inputs {
+    width: 20rem;
+    border: none;
+    outline: 0;
+    padding: 10px;
+    border-bottom: 2px solid #fff;
+    background-color: transparent;
+    color: #fff;
+}
+
+.inputs:focus ~ label, :valid ~ label {
+    transform: translateY(-24px);
+    font-size: 12px;
+}

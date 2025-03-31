@@ -1,0 +1,21 @@
+.header {
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.header h3 {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.header section {
+    background-color: #0e4a6b;
+    color: #ffffff;
+    border: none;
+    font-size: 0.9rem;
+    border-radius: 5px;
+    padding: 5px 10px;
+}

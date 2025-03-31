@@ -1,0 +1,7 @@
+.containerCard {
+    display: flex;
+    grid-area: Cards;
+    width: 100%;
+    gap: 0px 15px;
+    justify-content: space-evenly;
+}
