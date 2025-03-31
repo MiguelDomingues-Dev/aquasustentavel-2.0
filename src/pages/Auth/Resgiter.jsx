@@ -1,21 +1,18 @@
-import * as React from 'react';
-import { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { getFirestore, collection, addDoc } from 'firebase/firestore';
+import { IoEye, IoEyeOff } from "react-icons/io5";
+import { auth } from "../../services/firebase";
 
-
-
-import Button from "../../ui/components/button/Button";
-import InputsLa from "../../ui/components/inputs/Input"; // Input de email
-import InputsPa from "../../ui/components/inputs/InputPas"; // Input de senha
-import NameUser from '../../ui/components/inputs/nameUser';
-import NameComplett from '../../ui/components/inputs/nameComplet';
-import "../../ui/templates/login/register.css"; // Estilos
-import { IoEye, IoEyeOff } from "react-icons/io5"; // Ícones
-import Cabecalho from '../../ui/components/cabecalho/Cabecalho';
-import EntrarAccount from '../../ui/components/paragraph/EntrarAccount';
-import { auth } from "../../services/firebase"; // Certifique-se de que este caminho está correto
+// Lazy load dos componentes
+const Button = lazy(() => import("../../ui/components/button/Button"));
+const InputsLa = lazy(() => import("../../ui/components/inputs/Input"));
+const InputsPa = lazy(() => import("../../ui/components/inputs/InputPas"));
+const NameUser = lazy(() => import('../../ui/components/inputs/nameUser'));
+const NameComplett = lazy(() => import('../../ui/components/inputs/nameComplet'));
+const Cabecalho = lazy(() => import('../../ui/components/cabecalho/Cabecalho'));
+const EntrarAccount = lazy(() => import('../../ui/components/paragraph/EntrarAccount'));
 
 // Cria a instância do Firestore
 const db = getFirestore();
@@ -61,56 +58,58 @@ export default function Register() {
     };
 
     return (
-        <div className='containerRegister'>
-            <Cabecalho />
-            <div className="body">
-                <h2>Criar Conta</h2>
-                <form onSubmit={handleRegister}>
-                    <div className='inputSingle'>
-                        <NameUser 
-                            id="nameUser"
-                            value={nameUser}
-                            onChange={(e) => setNameUser(e.target.value)}
-                        />
-                        <label htmlFor="nameUser">Nome de Usuário</label>
-                    </div>
-                    <div className='inputSingle'>
-                        <NameComplett 
-                            id="nameComplett"
-                            value={nameComplett}
-                            onChange={(e) => setNameComplett(e.target.value)}
-                        />
-                        <label htmlFor="nameComplett">Nome Completo</label>
-                    </div>
-                    <div className='inputSingle'>
-                        <InputsLa 
-                            id="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                        <label htmlFor="email">Email</label>
-                    </div>
-                    <div className='inputSingle'>
-                        <InputsPa 
-                        id="password" 
-                        type={passwordVisible ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        />
-                        <label htmlFor="password">Senha</label>
-                        <div 
-                            className='iconEye' 
-                            onClick={togglePasswordVisibility} 
-                            style={{ cursor: 'pointer' }}
-                        >
-                            {passwordVisible ? <IoEyeOff /> : <IoEye />}
+        <Suspense fallback={<div>Carregando...</div>}>
+            <div className='containerRegister'>
+                <Cabecalho />
+                <div className="body">
+                    <h2>Criar Conta</h2>
+                    <form onSubmit={handleRegister}>
+                        <div className='inputSingle'>
+                            <NameUser 
+                                id="nameUser"
+                                value={nameUser}
+                                onChange={(e) => setNameUser(e.target.value)}
+                            />
+                            <label htmlFor="nameUser">Nome de Usuário</label>
                         </div>
-                    </div>
-                    {error && <p style={{ color: "red" }}>{error}</p>}
-                    <Button type="submit">Registrar</Button>
-                </form>
-                <EntrarAccount />
+                        <div className='inputSingle'>
+                            <NameComplett 
+                                id="nameComplett"
+                                value={nameComplett}
+                                onChange={(e) => setNameComplett(e.target.value)}
+                            />
+                            <label htmlFor="nameComplett">Nome Completo</label>
+                        </div>
+                        <div className='inputSingle'>
+                            <InputsLa 
+                                id="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                            <label htmlFor="email">Email</label>
+                        </div>
+                        <div className='inputSingle'>
+                            <InputsPa 
+                                id="password" 
+                                type={passwordVisible ? "text" : "password"}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                            <label htmlFor="password">Senha</label>
+                            <div 
+                                className='iconEye' 
+                                onClick={togglePasswordVisibility} 
+                                style={{ cursor: 'pointer' }}
+                            >
+                                {passwordVisible ? <IoEyeOff /> : <IoEye />}
+                            </div>
+                        </div>
+                        {error && <p style={{ color: "red" }}>{error}</p>}
+                        <Button type="submit">Registrar</Button>
+                    </form>
+                    <EntrarAccount />
+                </div>
             </div>
-        </div>
+        </Suspense>
     );
 }
