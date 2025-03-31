@@ -13,7 +13,7 @@ import NameUser from '../../ui/components/inputs/nameUser';
 import NameComplett from '../../ui/components/inputs/nameComplet';
 import "../../ui/templates/login/register.css"; // Estilos
 import { IoEye, IoEyeOff } from "react-icons/io5"; // Ícones
-import Cabecalho from '../../ui/components/cabecalhoLoginCadastrar/cabecalho';
+import Cabecalho from '../../ui/components/cabecalho/Cabecalho';
 import EntrarAccount from '../../ui/components/paragraph/EntrarAccount';
 import { auth } from "../../services/firebase"; // Certifique-se de que este caminho está correto
 
