@@ -1,12 +1,13 @@
 .climaTempo {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     width: 18.75rem;
     height: 96%;
     border-radius: 15px;
-    background: #0B3245;
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);    
+    background-image: url(/public/Temperature\ Now.png);
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.137);    
 }
 
 .backgroundImg {
@@ -31,7 +32,7 @@
     font-size: 18px;
     font-weight: bold;
     color: white;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.107);
     width: 100%;
     height: 100%;
     display: flex;

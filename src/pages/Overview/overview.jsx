@@ -5,7 +5,6 @@ import NavBar from '../../ui/components/navbar/NavBar';
 import Cards from '../../ui/components/cards/Cards';
 import Historico from '../../ui/components/historico/Historico';
 import ClimaTempo from '../../ui/components/climaTempo/ClimaTempo';
-import Tanque from '../../ui/components/tanque/Tanque';
 
 export default function Overview() {
     return(
@@ -17,7 +16,6 @@ export default function Overview() {
                 <Historico />
                 <ClimaTempo />
             </div>
-            <Tanque />
         </div>
     );
 }
