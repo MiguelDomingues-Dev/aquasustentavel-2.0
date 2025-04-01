@@ -1,14 +1,38 @@
 import * as React from 'react';
+import { useNavigate } from "react-router-dom";
 import { Box, Button, Typography, Link } from '@mui/material';
+import { styled } from "@mui/system";
+
+const CustomButton = styled(Button)({
+    color: "#fff",
+    backgroundColor: "#00B21B",
+    boxShadow: "0px 6px 20px rgba(47, 255, 0, 0.2509803922)",
+    border: "none"
+});
+
+const CustomButtonLogin = styled(Button)({
+    backgroundColor: "#003127",
+    border: "2px solid rgba(0, 178, 27, 0.6901960784)"
+});
 
 export default function FunctionApp() {
+    const navigate = useNavigate();
+
+    const handleClickLogin = () => {
+        navigate("/login");
+    };
+
+    const handleClickRegister = () => {
+        navigate("/register");
+    };
+
     return (
         <Box className="container" sx={{ p: 2 }}
             display="flex"
             alignItems="center"
             justifyContent="space-evenly"
         >
-          {/* Seção do slogan e título */}
+            {/* Seção do slogan e título */}
             <Box
                 id="slogan-titleMain"
                 display="flex"
@@ -49,19 +73,20 @@ export default function FunctionApp() {
                 </Link>
             </Box>
         
-          {/* Botões */}
+            {/* Botões */}
             <Box id="btns" display="flex">
-                <Button
+                <CustomButtonLogin
                     id="btnLogin"
                     variant="contained"
                     color="primary"
                     sx={{ mr: 2 }}
+                    onClick={handleClickLogin}
                 >
                     Login
-                </Button>
-                <Button variant="outlined" color="primary">
+                </CustomButtonLogin>
+                <CustomButton variant="outlined" color="primary" onClick={handleClickRegister}>
                     Sign up
-                </Button>
+                </CustomButton>
             </Box>
         </Box>
     );

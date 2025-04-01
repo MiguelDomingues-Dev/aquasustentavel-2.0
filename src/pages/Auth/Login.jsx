@@ -68,7 +68,9 @@ export default function Login() {
                         </div>
                     </div>
                     {error && <p style={{ color: "red" }}>{error}</p>}
-                    <Button />
+                    <Button >
+                        Login
+                    </Button>
                     <CriarAccount />
                 </form>
             </div>

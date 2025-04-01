@@ -1,10 +1,10 @@
 import * as React from 'react';
 import './button.css';
 
-export default function Button() {
+export default function Button({ children }) {
     return (
         <button className='button' type="submit">
-            Login
+            {children}
         </button>
     )
 }

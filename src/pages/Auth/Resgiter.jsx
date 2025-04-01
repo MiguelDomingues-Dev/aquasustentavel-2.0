@@ -5,6 +5,7 @@ import { getFirestore, collection, addDoc } from 'firebase/firestore';
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import { auth } from "../../services/firebase";
 
+import '../../ui/templates/cadastro/register.css';
 // Lazy load dos componentes
 const Button = lazy(() => import("../../ui/components/button/Button"));
 const InputsLa = lazy(() => import("../../ui/components/inputs/Input"));
