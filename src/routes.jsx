@@ -9,10 +9,10 @@ export default function AppRoutes() {
     return (
         <BrowserRouter>
             <Routes>
-                {/* Rota padrão que redireciona para a Landinpage */}
-                <Route path="/" element={<Navigate to="/landinpage" />} />
-                
-                <Route path="/landinpage" element={<Landinpage />} />
+                {/* Redireciona a raiz para /landingpage */}
+                <Route path="/" element={<Navigate to="/landingpage" />} />
+
+                <Route path="/landingpage" element={<Landinpage />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route 
