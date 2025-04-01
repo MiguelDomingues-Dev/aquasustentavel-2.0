@@ -1,5 +1,5 @@
 .containerTanque {
-    grid-area: tanque;
+        grid-area: tanque;
     width: 100%;
     height: 100%;
     background-color: #003d2e;

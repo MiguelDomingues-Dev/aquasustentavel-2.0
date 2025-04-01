@@ -6,7 +6,9 @@ export default function FooterSideBar() {
     return(
         <div className='footer'>
             <p>
-                <IoIosLogOut />
+                <IoIosLogOut 
+                    cursor="pointer"
+                />
             </p>
         </div>
     );

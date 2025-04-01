@@ -13,5 +13,5 @@ export default function SideBar() {
             <span className='separador'></span>
             <FooterSideBar />
         </div>
-    );
+    ); 
 }
