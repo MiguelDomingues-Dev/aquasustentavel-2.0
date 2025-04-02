@@ -43,7 +43,6 @@ export default function NavBar() {
             <h2>Overview</h2>
             <div className='containerUser'>
                 <p>@{userName ? userName : "Carregando..."}</p>
-                <PerfilMenu />
             </div>
         </div>
     );
