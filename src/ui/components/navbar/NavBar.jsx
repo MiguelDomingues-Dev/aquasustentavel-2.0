@@ -4,10 +4,11 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 import { auth, db } from "../../../services/firebase"; // Certifique-se que db está importado corretamente
 
+import AccountMenu from "../MenuSuspenso/MenuSuspenso";
+
 
 export default function NavBar() {
     const [userName, setUserName] = useState("Carregando...");
-
     useEffect(() => {
         const fetchUserData = async () => {
             onAuthStateChanged(auth, async (user) => {
@@ -34,7 +35,6 @@ export default function NavBar() {
                 }
             });
         };
-
         fetchUserData();
     }, []);
 
@@ -43,6 +43,7 @@ export default function NavBar() {
             <h2>Overview</h2>
             <div className='containerUser'>
                 <p>@{userName ? userName : "Carregando..."}</p>
+                <AccountMenu />
             </div>
         </div>
     );
