@@ -159,9 +159,11 @@ export default function AccountMenu() {
                     </ListItemIcon>
                     Configurações
                 </CustomMenuItem>
-                <CustomMenuItem onClick={handleLogout}>
+                <CustomMenuItem onClick={handleLogout} sx={{
+                    color: "red"
+                }}>
                     <ListItemIcon>
-                        <Logout sx={{color: "#fff"}} fontSize="small" />
+                        <Logout sx={{color: "red"}} fontSize="small" />
                     </ListItemIcon>
                     Logout
                 </CustomMenuItem>
