@@ -4,8 +4,11 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { getFirestore, collection, addDoc } from 'firebase/firestore';
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import { auth } from "../../services/firebase";
-
 import '../../ui/templates/cadastro/register.css';
+
+// Importação normal para o componente de Loading (sem lazy)
+import Loading from "../../ui/components/Loading/index";
+
 // Lazy load dos componentes
 const Button = lazy(() => import("../../ui/components/button/Button"));
 const InputsLa = lazy(() => import("../../ui/components/inputs/Input"));
@@ -25,6 +28,7 @@ export default function Register() {
     const [password, setPassword] = useState("");
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
 
@@ -35,36 +39,38 @@ export default function Register() {
     const handleRegister = async (event) => {
         event.preventDefault();
         setError(null);
+        setLoading(true);
+
         try {
-            // Cria o usuário com Firebase Authentication
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
-            console.log("Usuário registrado:", user);
 
-            // Armazena os dados adicionais do usuário no Cloud Firestore
             await addDoc(collection(db, "users"), {
                 uid: user.uid,
-                email: email,
-                nameUser: nameUser,
-                nameComplett: nameComplett,
+                email,
+                nameUser,
+                nameComplett,
                 createdAt: new Date()
             });
 
-            // Redireciona para o dashboard após o registro
             navigate("/overview");
         } catch (err) {
-            console.error("Erro ao criar conta:", err);
             setError("Falha ao criar conta. Verifique os dados e tente novamente.");
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <Suspense fallback={<div>Carregando...</div>}>
-            <div className='containerRegister'>
+        <div className='containerRegister'>
+            <Suspense fallback={<Loading />}>
                 <Cabecalho />
-                <div className="body">
-                    <h2>Criar Conta</h2>
-                    <form onSubmit={handleRegister}>
+            </Suspense>
+
+            <div className="body">
+                <h2>Criar Conta</h2>
+                <form onSubmit={handleRegister}>
+                    <Suspense fallback={<Loading />}>
                         <div className='inputSingle'>
                             <NameUser 
                                 id="nameUser"
@@ -105,12 +111,21 @@ export default function Register() {
                                 {passwordVisible ? <IoEyeOff /> : <IoEye />}
                             </div>
                         </div>
-                        {error && <p style={{ color: "red" }}>{error}</p>}
-                        <Button type="submit">Registrar</Button>
-                    </form>
-                    <EntrarAccount />
-                </div>
+                    </Suspense>
+
+                    {error && <p style={{ color: "red" }}>{error}</p>}
+
+                    <Suspense fallback={<Loading />}>
+                        <Button type="submit" disabled={loading}>
+                            {loading ? "Registrando..." : "Registrar"}
+                        </Button>
+                    </Suspense>
+
+                    <Suspense fallback={<Loading />}>
+                        <EntrarAccount />
+                    </Suspense>
+                </form>
             </div>
-        </Suspense>
+        </div>
     );
 }

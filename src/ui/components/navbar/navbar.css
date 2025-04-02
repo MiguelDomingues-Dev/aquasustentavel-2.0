@@ -20,6 +20,10 @@
     width: 15%;
 }
 
+.containerUser p {
+    color: #fff;
+}
+
 .containerUser .iconUser {
     cursor: pointer;
     width: 30px;

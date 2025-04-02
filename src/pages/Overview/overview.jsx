@@ -1,21 +1,33 @@
-import * as React from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import '../../ui/templates/overview/overview.css'
-import SideBar from '../../ui/components/sideBarMenu/SideBar';
-import NavBar from '../../ui/components/navbar/NavBar';
-import Cards from '../../ui/components/cards/Cards';
-import Historico from '../../ui/components/historico/Historico';
-import ClimaTempo from '../../ui/components/climaTempo/ClimaTempo';
+import Loading from "../../ui/components/Loading/index";
+
+const SideBar = lazy(() => import('../../ui/components/sideBarMenu/SideBar'));
+const NavBar = lazy(() => import('../../ui/components/navbar/NavBar'));
+const Cards = lazy(() => import('../../ui/components/cards/Cards'));
+const Historico = lazy(() => import('../../ui/components/historico/Historico'));
+const ClimaTempo = lazy(() => import('../../ui/components/climaTempo/ClimaTempo'));
+const MenuSupenso = lazy(() => import('../../ui/components/MenuSuspenso/MenuSuspenso'));
+
 
 export default function Overview() {
     return(
-        <div className='contaneirOverview'>
-            <SideBar />
-            <NavBar />
-            <Cards />
-            <div className='compoClimHist'>
-                <Historico />
-                <ClimaTempo />
+        <Suspense fallback={<Loading />}> 
+            <div className='contaneirOverview'>
+                <SideBar />
+                <NavBar />
+                <Suspense fallback={<Loading />}>
+                    <Cards />
+                </Suspense>
+                <div className='compoClimHist'>
+                    <Suspense fallback={<Loading />}>
+                        <Historico />
+                    </Suspense>
+                    <Suspense fallback={<Loading />}>
+                        <ClimaTempo />
+                    </Suspense>
+                </div>
             </div>
-        </div>
+        </Suspense>
     );
 }

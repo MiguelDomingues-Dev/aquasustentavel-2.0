@@ -1,15 +1,16 @@
-import * as React from 'react';
-import { useState } from 'react';
-import CriarAccount from "../../ui/components/paragraph/CriarAccount";
-import Cabecalho from '../../ui/components/cabecalho/Cabecalho';
-import Button from "../../ui/components/button/Button";
-import InputsLa from "../../ui/components/inputs/Input"; // Input de login
-import InputsPa from "../../ui/components/inputs/InputPas"; // Input de senha
+import React, { useState, lazy, Suspense } from 'react';
 import "../../ui/templates/login/login.css"; // Estilos
 import { IoEye, IoEyeOff } from "react-icons/io5"; // Ícones
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from "../../services/firebase";
 import { useNavigate } from 'react-router-dom';
+import Loading from '../../ui/components/Loading';
+
+const Button = lazy(() => import("../../ui/components/button/Button"));
+const InputsLa = lazy(() => import("../../ui/components/inputs/Input"));
+const InputsPa = lazy(() => import("../../ui/components/inputs/InputPas"));
+const Cabecalho = lazy(() => import('../../ui/components/cabecalho/Cabecalho'));
+const CriarAccount = lazy(() => import('../../ui/components/paragraph/CriarAccount'));
 
 export default function Login() {
     const navigate = useNavigate();
@@ -39,39 +40,48 @@ export default function Login() {
 
     return (
         <div className='containerLogin'>
-            <Cabecalho />
+            <Suspense fallback={<Loading />}>
+                <Cabecalho />
+            </Suspense>
             <div className='body'>
                 <h2>Login</h2>
                 <form onSubmit={handleLogin}>
-                    <div className='inputSingle'>
-                        <InputsLa 
-                            id="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                        <label htmlFor="email">Email</label>
-                    </div>
-                    <div className='inputSingle'>
-                        <InputsPa 
-                            id="password" 
-                            type={passwordVisible ? "text" : "password"}
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                        <label htmlFor="password">Senha</label>
-                        <div 
-                            className='iconEye' 
-                            onClick={togglePasswordVisibility} 
-                            style={{ cursor: 'pointer' }}
-                        >
-                            {passwordVisible ? <IoEyeOff /> : <IoEye />}
+                    <Suspense fallback={<Loading />}>
+                        <div className='inputSingle'>
+                            <InputsLa 
+                                id="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                            <label htmlFor="email">Email</label>
                         </div>
-                    </div>
+                        <div className='inputSingle'>
+                            <InputsPa 
+                                id="password" 
+                                type={passwordVisible ? "text" : "password"}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                            <label htmlFor="password">Senha</label>
+                            <div 
+                                className='iconEye' 
+                                onClick={togglePasswordVisibility} 
+                                style={{ cursor: 'pointer' }}
+                            >
+                                {passwordVisible ? <IoEyeOff /> : <IoEye />}
+                            </div>
+                        </div>
+                    </Suspense>
                     {error && <p style={{ color: "red" }}>{error}</p>}
-                    <Button >
-                        Login
-                    </Button>
-                    <CriarAccount />
+                    
+                    <Suspense fallback={<Loading />}>
+                        <Button>
+                            Login
+                        </Button>
+                    </Suspense>
+                    <Suspense fallback={<Loading />}>
+                        <CriarAccount />
+                    </Suspense>
                 </form>
             </div>
         </div>
