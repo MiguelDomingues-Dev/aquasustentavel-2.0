@@ -40,7 +40,7 @@ export default function FunctionApp() {
                 sx={{ mb: 2 }}
             >
                 <img
-                    src="/public/sloganImg.png"
+                    src="/sloganImg.png"
                     alt="Imagem do slogan do projeto"
                     style={{ marginRight: '1rem' }}
                 />
