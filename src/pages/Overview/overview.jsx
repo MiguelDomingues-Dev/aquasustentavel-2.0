@@ -7,7 +7,6 @@ const NavBar = lazy(() => import('../../ui/components/navbar/NavBar'));
 const Cards = lazy(() => import('../../ui/components/cards/Cards'));
 const Historico = lazy(() => import('../../ui/components/historico/Historico'));
 const ClimaTempo = lazy(() => import('../../ui/components/climaTempo/ClimaTempo'));
-const MenuSupenso = lazy(() => import('../../ui/components/MenuSuspenso/MenuSuspenso'));
 
 
 export default function Overview() {
