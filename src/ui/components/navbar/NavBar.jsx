@@ -4,7 +4,6 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 import { auth, db } from "../../../services/firebase"; // Certifique-se que db está importado corretamente
 
-import PerfilMenu from '../MenuSuspenso/MenuSuspenso';
 
 export default function NavBar() {
     const [userName, setUserName] = useState("Carregando...");
