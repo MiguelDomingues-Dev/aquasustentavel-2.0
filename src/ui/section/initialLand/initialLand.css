@@ -1,0 +1,13 @@
+.containerInitial {
+    display: flex;
+    flex-direction: column;
+    -ms-flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 0;
+    width: 100%;
+}
+
+.containerInitial h3 {
+    font-weight: 400;
+}
