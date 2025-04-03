@@ -140,7 +140,7 @@ export default function AccountMenu() {
             >
                 <MenuItem sx={
                     {
-                        cursor: "pointer"
+                        cursor: "arrow"
                     }
                 }>
                     <Avatar src={user?.photoURL || ""} /> 

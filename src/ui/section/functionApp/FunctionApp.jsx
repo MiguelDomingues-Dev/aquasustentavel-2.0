@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Box, Button, Typography, Link } from '@mui/material';
 import { styled } from "@mui/system";
 
+import "./functionApp.css";
+
 const CustomButton = styled(Button)({
     color: "#fff",
     backgroundColor: "#00B21B",
@@ -13,6 +15,30 @@ const CustomButton = styled(Button)({
 const CustomButtonLogin = styled(Button)({
     backgroundColor: "#003127",
     border: "2px solid rgba(0, 178, 27, 0.6901960784)"
+});
+
+const CustomLink = styled(Link) ({
+    color: "#fff",
+    fontWeight: 400,
+    fontSize: "1.125rem",
+    position: "relative",
+    "&::after": {
+        content: '""',
+        width: "0%",
+        height: "2px",
+        backgroundColor: "#00B21B",
+        position: "absolute",
+        bottom: "-3px",
+        left: "0",
+        transition: "width 0.5s ease-in-out",
+    },
+
+    "&:hover": {
+        color: "#00B21B", // Muda a cor do texto ao passar o mouse
+        "&::after": {
+            width: "100%", // Faz a linha crescer ao passar o mouse
+        },
+    },
 });
 
 export default function FunctionApp() {
@@ -27,11 +53,7 @@ export default function FunctionApp() {
     };
 
     return (
-        <Box className="container" sx={{ p: 2 }}
-            display="flex"
-            alignItems="center"
-            justifyContent="space-evenly"
-        >
+        <Box className="containerFunction">
             {/* Seção do slogan e título */}
             <Box
                 id="slogan-titleMain"
@@ -48,10 +70,10 @@ export default function FunctionApp() {
                     display="flex"
                     flexDirection="column"
                 >
-                    <Typography variant="h3" component="h1" fontSize="14px" alignSelf="center">
+                    <Typography variant="h3" component="h1" fontSize="14px" alignSelf="center" color='#fff'>
                         AquaSustentável
                     </Typography>
-                    <Typography variant="h5" component="h2" fontSize="6px">
+                    <Typography variant="h5" component="h2" fontSize="6px" color='#fff'>
                         T E C N O L O G I A & S U S T E N T A B I L I D A D E
                     </Typography>
                 </Box>
@@ -59,18 +81,18 @@ export default function FunctionApp() {
         
             {/* Navegação */}
             <Box component="nav" sx={{ mb: 2 }}>
-                <Link href="#comoFunciona" underline="none" sx={{ mr: 2 }}>
+                <CustomLink href="#comoFunciona" underline="none" sx={{ mr: 2 }}>
                     Como funciona
-                </Link>
-                <Link href="#plansServices" underline="none" sx={{ mr: 2 }}>
+                </CustomLink>
+                <CustomLink href="#plansServices" underline="none" sx={{ mr: 2 }}>
                     Preços
-                </Link>
-                <Link href="#sobre" underline="none" sx={{ mr: 2 }}>
+                </CustomLink>
+                <CustomLink href="#sobre" underline="none" sx={{ mr: 2 }}>
                     Sobre nós
-                </Link>
-                <Link href="#contanto" underline="none">
+                </CustomLink>
+                <CustomLink href="#contanto" underline="none">
                     Contato
-                </Link>
+                </CustomLink>
             </Box>
         
             {/* Botões */}
