@@ -1,13 +1,33 @@
 .containerInitial {
     display: flex;
-    flex-direction: column;
-    -ms-flex-direction: row;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
     padding: 2rem 0;
     width: 100%;
 }
 
-.containerInitial h3 {
+.containerInitial .headerInitial {
+    display: flex;
+    flex-direction: column;
+    gap: 10px 0px;
+    width: 423px;
+    height: 100%;
+}
+
+.headerInitial h3 {
+    color: #fff;
+    font-weight: 400;
+    font-size: 1.75rem;
+}
+
+.headerInitial h2 {
+    color: #fff;
+    font-weight: 700;
+    font-size: 2rem;
+}
+
+.headerInitial p {
+    color: #fff;
+    width: 347px;
     font-weight: 400;
 }
