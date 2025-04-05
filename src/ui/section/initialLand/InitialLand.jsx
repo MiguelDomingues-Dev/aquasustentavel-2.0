@@ -42,7 +42,7 @@ export default function InitialLand() {
     };
 
     return (
-        <div className="containerInitial">
+        <div className="containerInitial" >
             <div className="headerInitial">
                 <h3>Pare de gastar água à toa</h3>
                 <h2>Economize de melhor forma</h2>
