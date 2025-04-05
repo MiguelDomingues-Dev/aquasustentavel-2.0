@@ -11,13 +11,12 @@ export default function FeaturesSection() {
     return (
         <div 
             className="containerHow" 
-            style={{ marginTop: "200px", display: "flex", justifyContent: "center", border: "2px solid red" }}
+            style={{ marginTop: "200px", display: "flex", justifyContent: "center" }}
         >
             <Box 
                 sx={{
                     display: "flex",
                     flexDirection: { xs: "column", md: "row" },
-                    gap: 4,
                     justifyContent: "space-around",
                     alignItems: "center",
                     px: 2,
