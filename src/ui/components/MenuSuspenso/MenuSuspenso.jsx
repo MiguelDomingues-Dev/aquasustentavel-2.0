@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../services/AuthContext";
 import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
@@ -83,6 +84,13 @@ export default function AccountMenu() {
         }
     }));
 
+    const navigate = useNavigate();
+
+    const handleOpenConfig = () => {
+        handleClose(); //Função que fecha o Menu
+        navigate("/settings"); //Navega para a rota de cofigurações
+    }
+
     return (
         <React.Fragment>
             <Box sx={{ display: "flex", alignItems: "center", textAlign: "center" }}>
@@ -138,7 +146,7 @@ export default function AccountMenu() {
                 transformOrigin={{ horizontal: "right", vertical: "top" }}
                 anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
             >
-                <MenuItem sx={
+                <MenuItem  onClick={handleOpenConfig} sx={
                     {
                         cursor: "arrow"
                     }
@@ -147,13 +155,7 @@ export default function AccountMenu() {
                     <p>@{userName ? userName : "Carregando..."}</p>
                 </MenuItem>
                 <Divider />
-                <CustomMenuItem onClick={handleClose}>
-                    <ListItemIcon>
-                        <PersonAdd sx={{color: "#fff"}} fontSize="small" />
-                    </ListItemIcon>
-                    Adicionar outra conta
-                </CustomMenuItem>
-                <CustomMenuItem onClick={handleClose}>
+                <CustomMenuItem onClick={handleOpenConfig}>
                     <ListItemIcon>
                         <Settings sx={{color: "#fff"}} fontSize="small" />
                     </ListItemIcon>

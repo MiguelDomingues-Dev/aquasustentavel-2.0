@@ -3,6 +3,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Resgiter";
 import Overview from "./pages/overviewPrimary/Overview";   
+import AccountSettings from "./pages/Configuration/Configuration";
 import Landinpage from "./pages/Landinpage/Landigpage";
 
 export default function AppRoutes() {
@@ -20,6 +21,14 @@ export default function AppRoutes() {
                     element={
                         <ProtectedRoute>
                             <Overview />
+                        </ProtectedRoute>
+                    } 
+                />
+                <Route 
+                    path="/settings" 
+                    element={
+                        <ProtectedRoute>
+                            <AccountSettings />
                         </ProtectedRoute>
                     } 
                 />

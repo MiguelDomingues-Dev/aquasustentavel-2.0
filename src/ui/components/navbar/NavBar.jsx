@@ -3,12 +3,11 @@ import './navbar.css';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 import { auth, db } from "../../../services/firebase"; // Certifique-se que db está importado corretamente
-
 import AccountMenu from "../MenuSuspenso/MenuSuspenso";
 
-
-export default function NavBar() {
+export default function NavBar({ namePage }) { // desestruturando a prop namePage
     const [userName, setUserName] = useState("Carregando...");
+
     useEffect(() => {
         const fetchUserData = async () => {
             onAuthStateChanged(auth, async (user) => {
@@ -16,7 +15,7 @@ export default function NavBar() {
                     const userUID = user.uid; // Obtém o UID do usuário logado
                     
                     try {
-                        // 🔹 Consulta ao Firestore buscando o usuário pelo UID
+                        // Consulta ao Firestore buscando o usuário pelo UID
                         const q = query(collection(db, "users"), where("uid", "==", userUID));
                         const querySnapshot = await getDocs(q);
                         
@@ -40,7 +39,7 @@ export default function NavBar() {
 
     return (
         <div className='nabBarContainer'>
-            <h2>Overview</h2>
+            <h2>{namePage || "Overview"}</h2>
             <div className='containerUser'>
                 <p>@{userName ? userName : "Carregando..."}</p>
                 <AccountMenu />

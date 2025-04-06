@@ -1,7 +1,7 @@
 import React, { useState, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { getFirestore, collection, addDoc } from 'firebase/firestore';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { getFirestore, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import { auth } from "../../services/firebase";
 import '../../ui/templates/cadastro/register.css';
@@ -45,16 +45,21 @@ export default function Register() {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            await addDoc(collection(db, "users"), {
+            await updateProfile(user, {
+                displayName: nameComplett
+            });
+
+            await setDoc(doc(db, "users", user.uid), {
                 uid: user.uid,
                 email,
                 nameUser,
                 nameComplett,
-                createdAt: new Date()
+                createdAt: serverTimestamp()
             });
 
             navigate("/overview");
         } catch (err) {
+            console.error("Erro ao registrar:", err);
             setError("Falha ao criar conta. Verifique os dados e tente novamente.");
         } finally {
             setLoading(false);
@@ -72,7 +77,7 @@ export default function Register() {
                 <form onSubmit={handleRegister}>
                     <Suspense fallback={<Loading />}>
                         <div className='inputSingle'>
-                            <NameUser 
+                            <NameUser
                                 id="nameUser"
                                 value={nameUser}
                                 onChange={(e) => setNameUser(e.target.value)}
@@ -80,7 +85,7 @@ export default function Register() {
                             <label htmlFor="nameUser">Nome de Usuário</label>
                         </div>
                         <div className='inputSingle'>
-                            <NameComplett 
+                            <NameComplett
                                 id="nameComplett"
                                 value={nameComplett}
                                 onChange={(e) => setNameComplett(e.target.value)}
@@ -88,7 +93,7 @@ export default function Register() {
                             <label htmlFor="nameComplett">Nome Completo</label>
                         </div>
                         <div className='inputSingle'>
-                            <InputsLa 
+                            <InputsLa
                                 id="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
@@ -96,16 +101,16 @@ export default function Register() {
                             <label htmlFor="email">Email</label>
                         </div>
                         <div className='inputSingle'>
-                            <InputsPa 
-                                id="password" 
+                            <InputsPa
+                                id="password"
                                 type={passwordVisible ? "text" : "password"}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                             />
                             <label htmlFor="password">Senha</label>
-                            <div 
-                                className='iconEye' 
-                                onClick={togglePasswordVisibility} 
+                            <div
+                                className='iconEye'
+                                onClick={togglePasswordVisibility}
                                 style={{ cursor: 'pointer' }}
                             >
                                 {passwordVisible ? <IoEyeOff /> : <IoEye />}

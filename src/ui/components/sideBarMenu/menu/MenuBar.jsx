@@ -1,6 +1,5 @@
-import * as React from 'react';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './menuBar.css';
 import { VscGraph } from "react-icons/vsc";
 import { FaGear } from "react-icons/fa6";
@@ -9,35 +8,34 @@ import { HiOutlineSignal } from "react-icons/hi2";
 
 export default function MenuBar() {
     const navigate = useNavigate();
-    const [active, setActive] = useState('/'); // Estado para rastrear a página ativa
+    const location = useLocation(); // Obtem a localização atual
 
     const handleNavigation = (path) => {
-        setActive(path); // Atualiza o item ativo
-        navigate(path); // Redireciona para a página correspondente
+        navigate(path);
     };
 
     return (
         <div className='containerMenu'>
             <p 
-                className={active === '/' ? 'active' : ''} 
-                onClick={() => handleNavigation('/dashboard')}
+                className={location.pathname === '/aditionIot' ? 'active' : ''} 
+                onClick={() => handleNavigation('/aditionIot')}
             >
                 <HiOutlineSignal />
             </p>
             <p 
-                className={active === '/overview' ? 'active' : ''} 
+                className={location.pathname === '/overview' ? 'active' : ''} 
                 onClick={() => handleNavigation('/overview')}
             >
                 <IoHome />
             </p>
             <p 
-                className={active === '/dashboard' ? 'active' : ''} 
+                className={location.pathname === '/analytics' ? 'active' : ''} 
                 onClick={() => handleNavigation('/analytics')}
             >
                 <VscGraph />
             </p>
             <p 
-                className={active === '/settings' ? 'active' : ''} 
+                className={location.pathname === '/settings' ? 'active' : ''} 
                 onClick={() => handleNavigation('/settings')}
             >
                 <FaGear />
