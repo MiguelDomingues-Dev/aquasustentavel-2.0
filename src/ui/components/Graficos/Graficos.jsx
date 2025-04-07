@@ -1,31 +1,51 @@
 import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
-import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import "./graficos.css";
+import {
+  LineChart,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer
+} from "recharts";
 import { database } from "../../../services/firebase";
 import { ref, onValue } from "firebase/database";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 export default function DashboardWidget() {
-    const [selectedDate, setSelectedDate] = useState(new Date());
-    const [data, setData] = useState([]);
-    const [fluxo, setFluxo] = useState(0);
-    const [consumoTotal, setConsumoTotal] = useState(0);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [data, setData] = useState([]);
+  const [fluxo, setFluxo] = useState(0);
+  const [consumoTotal, setConsumoTotal] = useState(0);
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
-    const dashboardRef = ref(database, "usuarios");
+    const auth = getAuth();
 
-    onValue(dashboardRef, (snapshot) => {
-      const val = snapshot.val();
-      if (val) {
-        setFluxo(val.fluxoDeAgua || 0);
-        setConsumoTotal(val.consumoTotal || 0);
-        setData(val.historicoHoje || []);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserId(user.uid);
+
+        const userRef = ref(database, `usuarios/${user.uid}`);
+        onValue(userRef, (snapshot) => {
+          const val = snapshot.val();
+          if (val) {
+            setFluxo(val.fluxoAtual || 0);
+            setConsumoTotal(val.consumoTotal || 0);
+            setData(val.historicoHoje || []);
+          }
+        });
       }
     });
+
+    return () => unsubscribe();
   }, []);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 p-4 bg-gray-900 rounded-2xl shadow-md text-white">
+    <div className="contaneirGraficos">
       <div className="bg-gray-800 p-4 rounded-xl">
         <h2 className="text-xl font-bold mb-2">Gráfico do Dia</h2>
         <p className="text-sm mb-2">Fluxo atual: {fluxo} L/min</p>
