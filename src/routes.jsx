@@ -4,6 +4,7 @@ import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Resgiter";
 import Overview from "./pages/overviewPrimary/Overview";   
 import AccountSettings from "./pages/Configuration/Configuration";
+import Dashboard from "./pages/Dashboard/Dashboard";
 import Landinpage from "./pages/Landinpage/Landigpage";
 
 export default function AppRoutes() {
@@ -21,6 +22,14 @@ export default function AppRoutes() {
                     element={
                         <ProtectedRoute>
                             <Overview />
+                        </ProtectedRoute>
+                    } 
+                />
+                <Route 
+                    path="/analytics" 
+                    element={
+                        <ProtectedRoute>
+                            <Dashboard />
                         </ProtectedRoute>
                     } 
                 />

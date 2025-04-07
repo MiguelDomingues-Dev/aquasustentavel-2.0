@@ -17,12 +17,6 @@ export default function MenuBar() {
     return (
         <div className='containerMenu'>
             <p 
-                className={location.pathname === '/aditionIot' ? 'active' : ''} 
-                onClick={() => handleNavigation('/aditionIot')}
-            >
-                <HiOutlineSignal />
-            </p>
-            <p 
                 className={location.pathname === '/overview' ? 'active' : ''} 
                 onClick={() => handleNavigation('/overview')}
             >

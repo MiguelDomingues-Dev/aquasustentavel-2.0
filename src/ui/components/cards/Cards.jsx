@@ -3,6 +3,8 @@ import { Card, Typography } from "@mui/material";
 import { MdWaterDrop } from "react-icons/md";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getDatabase, ref, onValue, get } from "firebase/database";
+import { database } from "../../../services/firebase";
+
 
 import './cards.css';
 
@@ -10,7 +12,10 @@ export default function Cards() {
     const [userData, setUserData] = useState(null);
     const [historico, setHistorico] = useState(null);
     const [loading, setLoading] = useState(true);
-    
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [data, setData] = useState([]);
+    const [fluxo, setFluxo] = useState(0);
+    const [consumoTotal, setConsumoTotal] = useState(0);
     const auth = getAuth();
     const db = getDatabase();
 
