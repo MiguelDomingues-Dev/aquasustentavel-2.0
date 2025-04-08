@@ -5,6 +5,7 @@ import { getFirestore, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import { auth } from "../../services/firebase";
 import '../../ui/templates/cadastro/register.css';
+import { getDatabase, ref, set as rtdbSet } from 'firebase/database'; // ⬅️ Adicionado
 
 // Importação normal para o componente de Loading (sem lazy)
 import Loading from "../../ui/components/Loading/index";
@@ -36,19 +37,21 @@ export default function Register() {
         setPasswordVisible((prev) => !prev);
     };
 
+
     const handleRegister = async (event) => {
         event.preventDefault();
         setError(null);
         setLoading(true);
-
+    
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
-
+        
             await updateProfile(user, {
                 displayName: nameComplett
             });
-
+        
+            // 🔹 Firestore (já existente)
             await setDoc(doc(db, "users", user.uid), {
                 uid: user.uid,
                 email,
@@ -56,7 +59,17 @@ export default function Register() {
                 nameComplett,
                 createdAt: serverTimestamp()
             });
-
+        
+            // 🔸 Realtime Database
+            const rtdb = getDatabase();
+            await rtdbSet(ref(rtdb, `usuarios/${user.uid}`), {
+                uid: user.uid,
+                email,
+                nameUser,
+                nameComplett,
+                criadoEm: new Date().toISOString()
+            });
+        
             navigate("/overview");
         } catch (err) {
             console.error("Erro ao registrar:", err);
@@ -65,6 +78,7 @@ export default function Register() {
             setLoading(false);
         }
     };
+
 
     return (
         <div className='containerRegister'>

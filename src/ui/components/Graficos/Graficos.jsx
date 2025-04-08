@@ -1,80 +1,90 @@
 import React, { useState, useEffect } from "react";
-import Calendar from "react-calendar";
-import 'react-calendar/dist/Calendar.css';
-import "./graficos.css";
+import { Typography } from "@mui/material";
 import {
+  ResponsiveContainer,
   LineChart,
   Line,
   CartesianGrid,
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer
+  BarChart,
+  Bar
 } from "recharts";
-import { database } from "../../../services/firebase";
-import { ref, onValue } from "firebase/database";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getDatabase, ref, onValue, get } from "firebase/database";
+import { database } from "../../../services/firebase";
 
 export default function DashboardWidget() {
-  const [selectedDate, setSelectedDate] = useState(new Date());
   const [data, setData] = useState([]);
   const [fluxo, setFluxo] = useState(0);
   const [consumoTotal, setConsumoTotal] = useState(0);
-  const [userId, setUserId] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const auth = getAuth();
+  const db = getDatabase();
 
   useEffect(() => {
-    const auth = getAuth();
-
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setUserId(user.uid);
-
+        // Referência ao caminho do usuário no Realtime Database
         const userRef = ref(database, `usuarios/${user.uid}`);
         onValue(userRef, (snapshot) => {
           const val = snapshot.val();
           if (val) {
             setFluxo(val.fluxoAtual || 0);
             setConsumoTotal(val.consumoTotal || 0);
+            // Aqui esperamos que "historicoHoje" seja um array de leituras
             setData(val.historicoHoje || []);
           }
         });
       }
+      setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [auth, db]);
+
+  if (loading) {
+    return <p>Carregando...</p>;
+  }
 
   return (
-    <div className="contaneirGraficos">
-      <div className="bg-gray-800 p-4 rounded-xl">
-        <h2 className="text-xl font-bold mb-2">Gráfico do Dia</h2>
-        <p className="text-sm mb-2">Fluxo atual: {fluxo} L/min</p>
-        <p className="text-sm mb-4">Consumo total: {consumoTotal} L</p>
+    <div className="contaneirGraficos" style={{ display: "flex", flexDirection:"column", gap:"1rem" }}>
+      {/* Card de informações gerais */}
+      <div className="bg-gray-800 p-4 rounded-xl" style={{ color:"#fff", textAlign:"center" }}>
+        <Typography variant="h6">Fluxo de Água</Typography>
+        <Typography variant="h4" fontWeight="bold">{fluxo} L/min</Typography>
+        <Typography variant="h6" mt={1}>Consumo Total</Typography>
+        <Typography variant="h4" fontWeight="bold">{consumoTotal} L</Typography>
+      </div>
 
+      {/* Gráfico de Linha */}
+      <div className="bg-gray-800 p-4 rounded-xl" style={{ color:"#fff", textAlign:"center" }}>
+        <Typography variant="h6" className="text-xl font-bold mb-2">Gráfico de Linha</Typography>
         <ResponsiveContainer width="100%" height={250}>
           <LineChart data={data}>
-            <Line type="monotone" dataKey="valor" stroke="#4F46E5" strokeWidth={3} />
-            <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-            <XAxis dataKey="hora" />
-            <YAxis />
+            <CartesianGrid strokeDasharray="5 5" stroke="#ccc" />
+            <XAxis dataKey="hora" stroke="#fff" />
+            <YAxis stroke="#fff" />
             <Tooltip />
+            <Line type="monotone" dataKey="valor" stroke="#4F46E5" strokeWidth={3} />
           </LineChart>
         </ResponsiveContainer>
       </div>
 
-      <div className="bg-gray-800 p-4 rounded-xl">
-        <h2 className="text-xl font-bold mb-4">Calendário</h2>
-        <Calendar
-          onChange={setSelectedDate}
-          value={selectedDate}
-          className="rounded-xl p-2 text-black"
-        />
-        <p className="mt-4 text-sm text-gray-300">
-          Data selecionada:{" "}
-          <span className="font-semibold text-white">
-            {selectedDate.toLocaleDateString()}
-          </span>
-        </p>
+      {/* Gráfico de Barras */}
+      <div className="bg-gray-800 p-4 rounded-xl" style={{ color:"#fff", textAlign:"center" }}>
+        <Typography variant="h6" className="text-xl font-bold mb-2">Gráfico de Barras</Typography>
+        <ResponsiveContainer width="100%" height={250}>
+          <BarChart data={data}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
+            <XAxis dataKey="hora" stroke="#fff" />
+            <YAxis stroke="#fff" />
+            <Tooltip />
+            <Bar dataKey="valor" fill="#00B21B" />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
