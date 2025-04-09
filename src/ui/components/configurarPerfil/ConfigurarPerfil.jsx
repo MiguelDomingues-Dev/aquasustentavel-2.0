@@ -144,6 +144,25 @@ export default function ProfileConfig() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     theme={theme}
+                    sx={{
+                        input: { color: "#fff" }, // cor do texto digitado
+                        label: { color: "#aaa" }, // cor do label
+                        '& label.Mui-focused': { color: "#4F46E5" }, // cor do label quando focado
+                        '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                              borderColor: "#555", // borda padrão
+                            },
+                            '&:hover fieldset': {
+                              borderColor: "#777", // borda ao passar o mouse
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: "#07741d", // borda ao focar
+                            },
+                        },
+                        '& .MuiFormHelperText-root': {
+                          color: "#ccc", // texto de ajuda (helperText)
+                        }
+                    }}
                 />
                 <TextField
                     label="Nome de Usuário"

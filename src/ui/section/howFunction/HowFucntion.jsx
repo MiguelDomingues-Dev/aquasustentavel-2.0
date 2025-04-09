@@ -11,15 +11,16 @@ export default function FeaturesSection() {
     return (
         <div 
             className="containerHow" 
-            style={{ marginTop: "200px", display: "flex", justifyContent: "center" }}
+            style={{ marginTop: "12.5rem", display: "flex", justifyContent: "center" }}
         >
             <Box 
                 sx={{
                     display: "flex",
                     flexDirection: { xs: "column", md: "row" },
-                    justifyContent: "space-around",
+                    justifyContent: "space-evenly",
                     alignItems: "center",
                     px: 2,
+                    width: "100%"
                 }}
             >
               {/* Integração a Sensores */}
