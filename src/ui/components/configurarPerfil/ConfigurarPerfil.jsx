@@ -1,7 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { Box, TextField, Button, Typography, Switch, FormControlLabel, Paper } from "@mui/material";
-import { getAuth, updateEmail, updatePassword, updateProfile, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
-import { getFirestore, doc, updateDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import {
+    Box,
+    TextField,
+    Button,
+    Typography,
+    Switch,
+    FormControlLabel,
+    Paper,
+    InputAdornment,
+    IconButton,
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import {
+    getAuth,
+    updateEmail,
+    updatePassword,
+    updateProfile,
+    EmailAuthProvider,
+    reauthenticateWithCredential,
+} from "firebase/auth";
+import {
+    getFirestore,
+    doc,
+    updateDoc,
+    getDoc,
+    serverTimestamp,
+} from "firebase/firestore";
 import { auth, db } from "../../../services/firebase";
 import theme from "../../templates/globalThemeInputs/ThemeInputs";
 
@@ -13,6 +37,8 @@ export default function ProfileConfig() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [currentPassword, setCurrentPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [notifications, setNotifications] = useState(false);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
@@ -21,7 +47,7 @@ export default function ProfileConfig() {
         async function fetchUserSettings() {
             const currentUser = auth.currentUser;
             if (!currentUser) return;
-
+            
             const userDocRef = doc(db, "users", currentUser.uid);
             const docSnap = await getDoc(userDocRef);
             if (docSnap.exists()) {
@@ -38,10 +64,15 @@ export default function ProfileConfig() {
     const reauthenticate = async () => {
         const currentUser = auth.currentUser;
         if (!currentUser || !currentPassword) {
-            throw new Error("Para atualizar o email ou senha, preencha a senha atual.");
+            throw new Error(
+                "Para atualizar o email ou senha, preencha a senha atual."
+            );
         }
 
-        const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
+        const credential = EmailAuthProvider.credential(
+            currentUser.email,
+            currentPassword
+        );
         await reauthenticateWithCredential(currentUser, credential);
     };
 
@@ -49,46 +80,42 @@ export default function ProfileConfig() {
         e.preventDefault();
         setLoading(true);
         setMessage("");
-
+        
         const currentUser = auth.currentUser;
-        if (!currentUser) {
-            setMessage("Usuário não autenticado.");
-            setLoading(false);
-            return;
-        }
-
-        try {
-            if ((email && email !== currentUser.email) || password) {
-                await reauthenticate();
+            if (!currentUser) {
+                setMessage("Usuário não autenticado.");
+                setLoading(false);
+                return;
             }
+        
+            try {
+                if ((email && email !== currentUser.email) || password) {
+                    await reauthenticate();
+                }
+                if (email !== currentUser.email) {
+                    await updateEmail(currentUser, email);
+                }
+                if (name !== currentUser.displayName) {
+                    await updateProfile(currentUser, { displayName: name });
+                }
+                if (password) {
+                    await updatePassword(currentUser, password);
+                }
 
-            if (email !== currentUser.email) {
-                await updateEmail(currentUser, email);
+                const userDocRef = doc(db, "users", currentUser.uid);
+
+                await updateDoc(userDocRef, {
+                    nameUser: username,
+                    nameComplett: name,
+                    email,
+                    notifications,
+                    updatedAt: serverTimestamp(),
+                });
+
+                setMessage("Perfil atualizado com sucesso!");
+            } catch (error) {
+                setMessage("Erro ao atualizar perfil: " + error.message);
             }
-
-            if (name !== currentUser.displayName) {
-                await updateProfile(currentUser, { displayName: name });
-            }
-
-            if (password) {
-                await updatePassword(currentUser, password);
-            }
-
-            const userDocRef = doc(db, "users", currentUser.uid);
-
-            await updateDoc(userDocRef, {
-                nameUser: username,
-                nameComplett: name,
-                email,
-                notifications,
-                updatedAt: serverTimestamp(),
-            });
-
-            setMessage("Perfil atualizado com sucesso!");
-        } catch (error) {
-            setMessage("Erro ao atualizar perfil: " + error.message);
-        }
-
         setLoading(false);
     };
 
@@ -98,7 +125,7 @@ export default function ProfileConfig() {
                 backgroundColor: "transparent",
                 p: 3,
                 maxWidth: 600,
-                mt: 4,
+                mt: 1,
                 color: "#fff",
             }}
         >
@@ -126,6 +153,25 @@ export default function ProfileConfig() {
                     onChange={(e) => setUsername(e.target.value)}
                     helperText="Esse nome será usado para identificar você no sistema"
                     theme={theme}
+                    sx={{
+                        input: { color: "#fff" }, // cor do texto digitado
+                        label: { color: "#aaa" }, // cor do label
+                        '& label.Mui-focused': { color: "#4F46E5" }, // cor do label quando focado
+                        '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                              borderColor: "#555", // borda padrão
+                            },
+                            '&:hover fieldset': {
+                              borderColor: "#777", // borda ao passar o mouse
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: "#07741d", // borda ao focar
+                            },
+                        },
+                        '& .MuiFormHelperText-root': {
+                          color: "#ccc", // texto de ajuda (helperText)
+                        }
+                    }}
                 />
                 <TextField
                     label="Email"
@@ -134,26 +180,101 @@ export default function ProfileConfig() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     theme={theme}
+                    sx={{
+                        input: { color: "#fff" }, // cor do texto digitado
+                        label: { color: "#aaa" }, // cor do label
+                        '& label.Mui-focused': { color: "#4F46E5" }, // cor do label quando focado
+                        '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                              borderColor: "#555", // borda padrão
+                            },
+                            '&:hover fieldset': {
+                              borderColor: "#777", // borda ao passar o mouse
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: "#07741d", // borda ao focar
+                            },
+                        },
+                        '& .MuiFormHelperText-root': {
+                          color: "#ccc", // texto de ajuda (helperText)
+                        }
+                    }}
                 />
                 <TextField
                     label="Nova Senha"
                     variant="outlined"
                     fullWidth
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     helperText="Deixe em branco se não quiser alterar a senha"
                     theme={theme}
+                    sx={{
+                        input: { color: "#fff" },
+                        label: { color: "#aaa" },
+                        "& label.Mui-focused": { color: "#07741d" },
+                        "& .MuiOutlinedInput-root": {
+                            "& fieldset": { borderColor: "#555" },
+                            "&:hover fieldset": { borderColor: "#777" },
+                            "&.Mui-focused fieldset": { borderColor: "#07741d" },
+                        },
+                        "& .MuiFormHelperText-root": { color: "#ccc" },
+                    }}
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <IconButton
+                                    onClick={() => setShowPassword((prev) => !prev)}
+                                    edge="end"
+                                    sx={{ color: "#aaa" }}
+                                >
+                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                            </InputAdornment>
+                        ),
+                    }}
                 />
                 <TextField
                     label="Senha Atual"
                     variant="outlined"
                     fullWidth
-                    type="password"
+                    type={showCurrentPassword ? "text" : "password"}
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     helperText="Necessária para alterar email ou senha"
                     theme={theme}
+                    sx={{
+                        input: { color: "#fff" }, // cor do texto digitado
+                        label: { color: "#aaa" }, // cor do label
+                        '& label.Mui-focused': { color: "#4F46E5" }, // cor do label quando focado
+                        '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                              borderColor: "#555", // borda padrão
+                            },
+                            '&:hover fieldset': {
+                              borderColor: "#777", // borda ao passar o mouse
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: "#07741d", // borda ao focar
+                            },
+                        },
+                        '& .MuiFormHelperText-root': {
+                          color: "#ccc", // texto de ajuda (helperText)
+                        }
+                    }}
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <IconButton
+                                    onClick={() => setShowCurrentPassword((prev) => !prev)}
+                                    edge="end"
+                                    sx={{ color: "#aaa" }}
+                                >
+                                    {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                            </InputAdornment>
+                        ),
+                    }}
                 />
                 <FormControlLabel
                     control={

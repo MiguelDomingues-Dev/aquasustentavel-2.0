@@ -71,3 +71,23 @@ body {
     margin: 0 auto;
     padding: 20px;
 }
+
+.scroll-container::-webkit-scrollbar {
+    width: 10px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+    background: #2d2d2d; /* Cor do fundo da barra */
+    border-radius: 10px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+    background-color: #07741d; /* Cor da barrinha */
+    border-radius: 10px;
+    border: 2px solid #2d2d2d; /* Espaçamento interno */
+    transition: 1s ease-in-out;
+}
+
+.scroll-container::-webkit-scrollbar-thumb:hover {
+    background-color: #0c9d29; /* Cor ao passar o mouse */
+}

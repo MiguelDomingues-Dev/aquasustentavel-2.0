@@ -12,7 +12,7 @@ import {
   Bar
 } from "recharts";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getDatabase, ref, onValue, get } from "firebase/database";
+import { getDatabase, ref, onValue } from "firebase/database";
 import { database } from "../../../services/firebase";
 
 export default function DashboardWidget() {
@@ -27,14 +27,12 @@ export default function DashboardWidget() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        // Referência ao caminho do usuário no Realtime Database
         const userRef = ref(database, `usuarios/${user.uid}`);
         onValue(userRef, (snapshot) => {
           const val = snapshot.val();
           if (val) {
             setFluxo(val.fluxoAtual || 0);
             setConsumoTotal(val.consumoTotal || 0);
-            // Aqui esperamos que "historicoHoje" seja um array de leituras
             setData(val.historicoHoje || []);
           }
         });
@@ -50,41 +48,46 @@ export default function DashboardWidget() {
   }
 
   return (
-    <div className="contaneirGraficos" style={{ display: "flex", flexDirection:"column", gap:"1rem" }}>
+    <div className="contaneirGraficos  rounded-xl scroll-container" style={{ display: "flex", flexDirection: "column", gap: "1rem", width: "800px",  overflowY: "auto"  }}>
+      
       {/* Card de informações gerais */}
-      <div className="bg-gray-800 p-4 rounded-xl" style={{ color:"#fff", textAlign:"center" }}>
+      <div className="bg-gray-800 p-4 rounded-xl" style={{ color: "#fff", textAlign: "center" }}>
         <Typography variant="h6">Fluxo de Água</Typography>
         <Typography variant="h4" fontWeight="bold">{fluxo} L/min</Typography>
         <Typography variant="h6" mt={1}>Consumo Total</Typography>
         <Typography variant="h4" fontWeight="bold">{consumoTotal} L</Typography>
       </div>
 
-      {/* Gráfico de Linha */}
-      <div className="bg-gray-800 p-4 rounded-xl" style={{ color:"#fff", textAlign:"center" }}>
+      {/* Gráfico de Linha com scroll interno */}
+      <div className="bg-gray-800 p-4 rounded-xl" style={{ color: "#fff", textAlign: "center", maxHeight: "320px" }}>
         <Typography variant="h6" className="text-xl font-bold mb-2">Gráfico de Linha</Typography>
-        <ResponsiveContainer width="100%" height={250}>
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="5 5" stroke="#ccc" />
-            <XAxis dataKey="hora" stroke="#fff" />
-            <YAxis stroke="#fff" />
-            <Tooltip />
-            <Line type="monotone" dataKey="valor" stroke="#4F46E5" strokeWidth={3} />
-          </LineChart>
-        </ResponsiveContainer>
+        <div style={{ minWidth: "600px", height: "250px" }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data}>
+              <CartesianGrid strokeDasharray="5 5" stroke="#ccc" />
+              <XAxis dataKey="hora" stroke="#fff" />
+              <YAxis stroke="#fff" />
+              <Tooltip />
+              <Line type="monotone" dataKey="valor" stroke="#4F46E5" strokeWidth={3} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
-      {/* Gráfico de Barras */}
-      <div className="bg-gray-800 p-4 rounded-xl" style={{ color:"#fff", textAlign:"center" }}>
+      {/* Gráfico de Barras com scroll interno */}
+      <div className="bg-gray-800 p-4 rounded-xl" style={{ color: "#fff", textAlign: "center", maxHeight: "320px"}}>
         <Typography variant="h6" className="text-xl font-bold mb-2">Gráfico de Barras</Typography>
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
-            <XAxis dataKey="hora" stroke="#fff" />
-            <YAxis stroke="#fff" />
-            <Tooltip />
-            <Bar dataKey="valor" fill="#00B21B" />
-          </BarChart>
-        </ResponsiveContainer>
+        <div style={{ minWidth: "600px", height: "250px" }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
+              <XAxis dataKey="hora" stroke="#fff" />
+              <YAxis stroke="#fff" />
+              <Tooltip />
+              <Bar dataKey="valor" fill="#00B21B" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </div>
   );
