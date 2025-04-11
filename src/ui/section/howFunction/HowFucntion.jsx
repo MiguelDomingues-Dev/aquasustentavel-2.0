@@ -13,7 +13,7 @@ export default function FeaturesSection() {
             className="containerHow" 
             style={{ marginTop: "12.5rem", display: "flex", justifyContent: "center" }}
         >
-            <Box 
+        <Box 
                 sx={{
                     display: "flex",
                     flexDirection: { xs: "column", md: "row" },

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Card, Typography } from "@mui/material";
 import { MdWaterDrop } from "react-icons/md";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getDatabase, ref, get } from "firebase/database";
+import { getDatabase, ref, onValue, get } from "firebase/database";
 import { database } from "../../../services/firebase";
 import './cards.css';
 
@@ -15,7 +15,6 @@ export default function Cards() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // Buscando os dados do usuário diretamente em "usuarios/{user.uid}"
         const userRef = ref(db, `usuarios/${user.uid}`);
         try {
           const snapshot = await get(userRef);
@@ -30,7 +29,6 @@ export default function Cards() {
       }
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, [auth, db]);
 
@@ -47,14 +45,30 @@ export default function Cards() {
 
   return (
     <div className="containerCard">
-      <Card sx={{ backgroundColor: "rgba(0, 178, 27, 0.69)", color: "white", padding: 2, width: "300px", textAlign: "center" }}>
+      <Card 
+        sx={{ 
+          backgroundColor: "rgba(0, 178, 27, 0.69)", 
+          color: "white", 
+          padding: 2, 
+          width: { xs: "90%", sm: "300px" }, 
+          textAlign: "center" 
+        }}
+      >
         <Typography variant="h6">Fluxo de Água</Typography>
         <Typography variant="h4" fontWeight="bold">
           {userData?.fluxoAtual || 0} L/min
         </Typography>
       </Card>
 
-      <Card sx={{ backgroundColor: "rgba(9, 132, 193, 0.49)", color: "white", padding: 2, width: "300px", textAlign: "center" }}>
+      <Card 
+        sx={{ 
+          backgroundColor: "rgba(9, 132, 193, 0.49)", 
+          color: "white", 
+          padding: 2, 
+          width: { xs: "90%", sm: "300px" }, 
+          textAlign: "center" 
+        }}
+      >
         <Typography variant="h6">
           <MdWaterDrop /> Consumo Total
         </Typography>
@@ -63,7 +77,15 @@ export default function Cards() {
         </Typography>
       </Card>
 
-      <Card sx={{ backgroundColor: "rgba(9, 132, 193, 0.49)", color: "white", padding: 2, width: "300px", textAlign: "center" }}>
+      <Card 
+        sx={{ 
+          backgroundColor: "rgba(9, 132, 193, 0.49)", 
+          color: "white", 
+          padding: 2, 
+          width: { xs: "90%", sm: "300px" }, 
+          textAlign: "center" 
+        }}
+      >
         <Typography variant="h6">
           <MdWaterDrop /> Média do Histórico de Hoje
         </Typography>

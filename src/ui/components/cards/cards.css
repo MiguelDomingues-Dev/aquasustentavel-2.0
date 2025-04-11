@@ -1,7 +1,10 @@
 .containerCard {
     display: flex;
-    grid-area: Cards;
+    flex-wrap: wrap;             /* Permite quebra de linha */
+    gap: 15px;                   /* Espaço entre os cards */
+    justify-content: center;     /* Centraliza os cards */
     width: 100%;
-    gap: 0px 15px;
-    justify-content: space-evenly;
+    padding: 0 15px;             /* Espaçamento lateral opcional */
+    box-sizing: border-box;
+    grid-area: Cards;
 }

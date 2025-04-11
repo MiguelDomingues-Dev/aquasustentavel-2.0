@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Box, Typography } from "@mui/material";
 import { getAuth } from "firebase/auth";
 import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
 import CardHist from "../cardHist/CardHist"; // ajuste o caminho conforme necessário
@@ -35,7 +36,18 @@ export default function BodyHist() {
   }, []);
   
   return (
-    <div className="bodyHistContainer">
+    <Box
+      sx={{
+        display: "flex",
+        flexWrap: "wrap",            // Permite que os cards que não caibam em uma linha quebrem para a próxima
+        justifyContent: "center",
+        gap: 2,                      // Espaço entre os cards
+        p: 2,
+        width: "100%",
+        boxSizing: "border-box"
+      }}
+      className="bodyHistContainer"
+    >
       {records.length > 0 ? (
         records.map((record) => (
           <CardHist
@@ -45,8 +57,8 @@ export default function BodyHist() {
           />
         ))
       ) : (
-        <p>Nenhum registro encontrado.</p>
+        <Typography>Nenhum registro encontrado.</Typography>
       )}
-    </div>
+    </Box>
   );
 }

@@ -7,20 +7,45 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.infoConsumo {
+    box-sizing: border-box;
+  }
+  
+  .infoConsumo {
     display: flex;
     flex-direction: column;
-    gap: 10px 0px;
-}
-
-.date {
+    gap: 10px;
+  }
+  
+  .date {
     font-size: 0.8rem;
     color: #66a678;
-}
-
-.valueConsumo {
+  }
+  
+  .valueConsumo {
     font-size: 1.1rem;
     font-weight: bold;
-}
+  }
+  
+  /* Media Query para telas pequenas */
+  @media (max-width: 600px) {
+    .containerCardHist {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 10px;  /* Ajusta o padding se necessário */
+    }
+    
+    .infoConsumo {
+      margin-bottom: 8px;
+    }
+    
+    .valueConsumo {
+      font-size: 1rem;
+    }
+    
+    /* Opcional: centralize o ícone também */
+    .containerCardHist svg {
+      align-self: flex-end;
+      margin-top: 5px;
+    }
+  }
+  

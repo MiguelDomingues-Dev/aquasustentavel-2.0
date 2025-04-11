@@ -3,19 +3,41 @@
     padding: 10px;
     display: flex;
     justify-content: space-between;
-}
-
-.header h3 {
+    align-items: center;
+    box-sizing: border-box;
+  }
+  
+  .header h3 {
     color: #fff;
     font-size: 1.5rem;
     font-weight: 600;
-}
-
-.header section {
+    margin: 0;
+  }
+  
+  .dateSelect {
     background-color: #0e4a6b;
     color: #ffffff;
     border: none;
     font-size: 0.9rem;
     border-radius: 5px;
     padding: 5px 10px;
-}
+  }
+  
+  /* Responsividade: ajustes para telas menores */
+  @media (max-width: 480px) {
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    
+    .header h3 {
+      font-size: 1.3rem;
+    }
+    
+    .dateSelect {
+      width: 100%;
+      font-size: 0.8rem;
+    }
+  }
+  
