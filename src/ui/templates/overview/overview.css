@@ -2,20 +2,41 @@
     display: grid; 
     gap: 1rem;
     grid-template-areas: 
-    "sideBar navbar navbar navbar" 
-    "sideBar Cards Cards Cards" 
-    "sideBar compoClimHist compoClimHist compoClimHist" 
-    ;
+        "sideBar navbar navbar navbar" 
+        "sideBar Cards Cards Cards" 
+        "sideBar compoClimHist compoClimHist compoClimHist";
     grid-template-columns: 7% 1fr;
     grid-template-rows: auto auto 1fr;
     width: 100%;
     height: 100vh;
 }
 
+/* Estilo para a área de clima/histórico */
 .compoClimHist {
     width: 100%;
     display: flex;
     justify-content: space-around;
     gap: 0px 10px;
     grid-area: compoClimHist;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+    .contaneirOverview {
+        display: grid;
+        height: auto;
+        padding: 1rem;
+        gap: 1rem;
+    }
+    /* Caso queira que as áreas que antes eram definidas pela grid se ajustem: */
+    .compoClimHist {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+    }
+    .containerMenuHeader {
+        grid-area: containerMenuHeader;
+    }
 }
