@@ -53,7 +53,9 @@ export default function FunctionApp() {
     };
 
     return (
-        <Box className="containerFunction">
+        <Box className="containerFunction"
+            sx={{ position: "fixed", mt: '-85px', bgcolor: "#03131B", zIndex: 1}}
+        >
             {/* Seção do slogan e título */}
             <Box
                 id="slogan-titleMain"

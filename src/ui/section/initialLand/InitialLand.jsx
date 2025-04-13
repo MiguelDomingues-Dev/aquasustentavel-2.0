@@ -63,7 +63,7 @@ export default function InitialLand() {
                 </Box>
             </div>
             <div className="boxContainerImg">
-                <img src="/public/sustentavelPlanet2.5 1.png" alt="" />
+                <img src="/sustentavelPlanet2.5 1.png" alt="" />
             </div>
         </div>
     );
