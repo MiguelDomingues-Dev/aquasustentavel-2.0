@@ -1,5 +1,7 @@
-AquaSustentável
-<img src="/public/sloganImg.png" alt="Logo AquaSustentável" width="200"/>
+<div>
+  <H1>AquaSustentável</h1>
+  <img src="/public/sloganImg.png" alt="Logo AquaSustentável" width="200"/>
+</div>
 AquaSustentável é um projeto web voltado para o monitoramento inteligente do consumo de água. Utilizando um ESP32 integrado com sensores e uma válvula solenoide, o sistema coleta dados em tempo real e os exibe em uma interface interativa. O objetivo é promover o uso consciente da água e facilitar o controle remoto do fluxo em residências ou ambientes corporativos.
 
 ✨ Funcionalidades
