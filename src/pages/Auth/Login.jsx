@@ -11,6 +11,7 @@ const InputsLa = lazy(() => import("../../ui/components/inputs/Input"));
 const InputsPa = lazy(() => import("../../ui/components/inputs/InputPas"));
 const Cabecalho = lazy(() => import('../../ui/components/cabecalho/Cabecalho'));
 const CriarAccount = lazy(() => import('../../ui/components/paragraph/CriarAccount'));
+const ResetPassword = lazy(() => import('../../ui/components/paragraph/ResetPassword'));
 
 export default function Login() {
     const navigate = useNavigate();
@@ -81,6 +82,7 @@ export default function Login() {
                     </Suspense>
                     <Suspense fallback={<Loading />}>
                         <CriarAccount />
+                        <ResetPassword />
                     </Suspense>
                 </form>
             </div>

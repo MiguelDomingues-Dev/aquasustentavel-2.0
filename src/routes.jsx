@@ -6,6 +6,7 @@ import Overview from "./pages/overviewPrimary/Overview";
 import AccountSettings from "./pages/Configuration/Configuration";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Landinpage from "./pages/Landinpage/Landigpage";
+import ForgotPassword from "./ui/components/resetPassword/ForgotPassword";
 
 export default function AppRoutes() {
     return (
@@ -16,6 +17,7 @@ export default function AppRoutes() {
 
                 <Route path="/landingpage" element={<Landinpage />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/register" element={<Register />} />
                 <Route 
                     path="/overview" 
