@@ -1,327 +1,392 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
-    Box,
-    TextField,
-    Button,
-    Typography,
-    Switch,
-    FormControlLabel,
-    Paper,
-    InputAdornment,
-    IconButton,
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  Slider,
+  Switch,
+  Stack,
+  Divider,
+  Button,
+  InputAdornment,
+  IconButton,
+  CircularProgress,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { Droplets, Bell, Save } from "lucide-react";
+import { useForm, Controller } from "react-hook-form";
+
 import {
-    getAuth,
-    updateEmail,
-    updatePassword,
-    updateProfile,
-    EmailAuthProvider,
-    reauthenticateWithCredential,
+  updateEmail,
+  updatePassword,
+  updateProfile,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
 } from "firebase/auth";
-import {
-    getFirestore,
-    doc,
-    updateDoc,
-    getDoc,
-    serverTimestamp,
-} from "firebase/firestore";
 import { auth, db } from "../../../services/firebase";
-import theme from "../../templates/globalThemeInputs/ThemeInputs";
+import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 
-export default function ProfileConfig() {
+/* ------------ valores iniciais ------------ */
+const defaultValues = {
+  name: "",
+  username: "",
+  email: "",
+  newPassword: "",
+  currentPassword: "",
+  notifications: true,
+  waterGoal: 150,      // L/dia
+  alertThreshold: 4,   // L/min
+};
+
+export default function ProfileSettings() {
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setError,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm({ defaultValues });
+
+  /* toggles de visibilidade das senhas */
+  const [showNewPass, setShowNewPass] = useState(false);
+  const [showCurrPass, setShowCurrPass] = useState(false);
+
+  /* ---------- carregar Firestore ---------- */
+  useEffect(() => {
+    async function fetchData() {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const snap = await getDoc(doc(db, "users", user.uid));
+      const d = snap.exists() ? snap.data() : {};
+
+      reset({
+        name: d.nameComplett || user.displayName || "",
+        username: d.nameUser || "",
+        email: d.email || user.email || "",
+        newPassword: "",
+        currentPassword: "",
+        notifications: d.notifications ?? true,
+        waterGoal: d.waterGoal ?? 150,
+        alertThreshold: d.alertThreshold ?? 4,
+      });
+    }
+    fetchData();
+  }, [reset]);
+
+  /* ---------- helpers ---------- */
+  const reauth = async (currPassword) => {
     const user = auth.currentUser;
+    if (!user) throw new Error("Usuário não autenticado.");
+    if (!currPassword)
+      throw new Error("Informe a senha atual para alterar e‑mail ou senha.");
 
-    const [name, setName] = useState("");
-    const [username, setUsername] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [currentPassword, setCurrentPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
-    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-    const [notifications, setNotifications] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState("");
+    const cred = EmailAuthProvider.credential(user.email, currPassword);
+    await reauthenticateWithCredential(user, cred);
+  };
 
-    useEffect(() => {
-        async function fetchUserSettings() {
-            const currentUser = auth.currentUser;
-            if (!currentUser) return;
-            
-            const userDocRef = doc(db, "users", currentUser.uid);
-            const docSnap = await getDoc(userDocRef);
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                setNotifications(data.notifications || false);
-                setUsername(data.nameUser || "");
-                setName(data.nameComplett || "");
-                setEmail(data.email || currentUser.email);
-            }
-        }
-        fetchUserSettings();
-    }, []);
+  /* ---------- submit ---------- */
+  const onSubmit = async (data) => {
+    const user = auth.currentUser;
+    if (!user) {
+      setError("root", { message: "Usuário não autenticado." });
+      return;
+    }
 
-    const reauthenticate = async () => {
-        const currentUser = auth.currentUser;
-        if (!currentUser || !currentPassword) {
-            throw new Error(
-                "Para atualizar o email ou senha, preencha a senha atual."
-            );
-        }
+    try {
+      /* reautenticação se necessário */
+      if (
+        (data.email && data.email !== user.email) ||
+        data.newPassword
+      ) {
+        await reauth(data.currentPassword);
+      }
 
-        const credential = EmailAuthProvider.credential(
-            currentUser.email,
-            currentPassword
-        );
-        await reauthenticateWithCredential(currentUser, credential);
-    };
+      /* Firebase Auth */
+      if (data.email !== user.email) await updateEmail(user, data.email);
+      if (data.name !== user.displayName)
+        await updateProfile(user, { displayName: data.name });
+      if (data.newPassword) await updatePassword(user, data.newPassword);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setMessage("");
-        
-        const currentUser = auth.currentUser;
-            if (!currentUser) {
-                setMessage("Usuário não autenticado.");
-                setLoading(false);
-                return;
-            }
-        
-            try {
-                if ((email && email !== currentUser.email) || password) {
-                    await reauthenticate();
-                }
-                if (email !== currentUser.email) {
-                    await updateEmail(currentUser, email);
-                }
-                if (name !== currentUser.displayName) {
-                    await updateProfile(currentUser, { displayName: name });
-                }
-                if (password) {
-                    await updatePassword(currentUser, password);
-                }
+      /* Firestore */
+      await updateDoc(doc(db, "users", user.uid), {
+        nameUser: data.username,
+        nameComplett: data.name,
+        email: data.email,
+        notifications: data.notifications,
+        waterGoal: data.waterGoal,
+        alertThreshold: data.alertThreshold,
+        updatedAt: serverTimestamp(),
+      });
 
-                const userDocRef = doc(db, "users", currentUser.uid);
+      reset({ ...data, newPassword: "", currentPassword: "" });
+      alert("Dados atualizados com sucesso!");
+    } catch (err) {
+      console.error(err);
+      setError("root", { message: err.message });
+    }
+  };
 
-                await updateDoc(userDocRef, {
-                    nameUser: username,
-                    nameComplett: name,
-                    email,
-                    notifications,
-                    updatedAt: serverTimestamp(),
-                });
+  /* ---------- estilos compartilhados ---------- */
+  const green = "#1DB954";
+  const textFieldSX = {
+    input: { color: "#fff" },
+    label: { color: "#aaa" },
+    "& label.Mui-focused": { color: green },
+    "& .MuiOutlinedInput-root": {
+      "& fieldset": { borderColor: "#555" },
+      "&:hover fieldset": { borderColor: "#777" },
+      "&.Mui-focused fieldset": { borderColor: green },
+    },
+    "& .MuiFormHelperText-root": { color: "#ccc" },
+  };
+  const sliderSX = {
+    "& .MuiSlider-thumb, & .MuiSlider-track": { color: green },
+    "& .MuiSlider-rail": { color: "#555" },
+  };
 
-                setMessage("Perfil atualizado com sucesso!");
-            } catch (error) {
-                setMessage("Erro ao atualizar perfil: " + error.message);
-            }
-        setLoading(false);
-    };
+  /* ---------- UI ---------- */
+  return (
+    <Paper
+      sx={{
+        bgcolor: "#181C20",
+        border: "1px solid #2f3336",
+        borderRadius: 2,
+        p: 3,
+        color: "#d1d5db",
+        maxWidth: 600,
+        mx: "auto",
+        mt: 4,
+      }}
+    >
+      <Typography variant="h5" gutterBottom>
+        Configurações da Conta
+      </Typography>
 
-    return (
-        <Paper
-            sx={{
-                backgroundColor: "transparent",
-                p: 3,
-                maxWidth: 600,
-                mt: 1,
-                color: "#fff",
-            }}
-        >
-            <Typography variant="h5" gutterBottom>
-                Configurações da Conta
-            </Typography>
-            <Box
-                component="form"
-                onSubmit={handleSubmit}
-                sx={{ display: "flex", flexDirection: "column", gap: 1, color: "#fff" }}
-            >
-                <TextField
-                    label="Nome Completo"
-                    variant="outlined"
-                    fullWidth
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    theme={theme}
-                    sx={{
-                        input: { color: "#fff" }, // cor do texto digitado
-                        label: { color: "#aaa" }, // cor do label
-                        '& label.Mui-focused': { color: "#4F46E5" }, // cor do label quando focado
-                        '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: "#555", // borda padrão
-                            },
-                            '&:hover fieldset': {
-                              borderColor: "#777", // borda ao passar o mouse
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: "#07741d", // borda ao focar
-                            },
-                        },
-                        '& .MuiFormHelperText-root': {
-                          color: "#ccc", // texto de ajuda (helperText)
-                        }
-                    }}
-                />
-                <TextField
-                    label="Nome de Usuário"
-                    variant="outlined"
-                    fullWidth
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    helperText="Esse nome será usado para identificar você no sistema"
-                    theme={theme}
-                    sx={{
-                        input: { color: "#fff" }, // cor do texto digitado
-                        label: { color: "#aaa" }, // cor do label
-                        '& label.Mui-focused': { color: "#4F46E5" }, // cor do label quando focado
-                        '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: "#555", // borda padrão
-                            },
-                            '&:hover fieldset': {
-                              borderColor: "#777", // borda ao passar o mouse
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: "#07741d", // borda ao focar
-                            },
-                        },
-                        '& .MuiFormHelperText-root': {
-                          color: "#ccc", // texto de ajuda (helperText)
-                        }
-                    }}
-                />
-                <TextField
-                    label="Email"
-                    variant="outlined"
-                    fullWidth
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    theme={theme}
-                    sx={{
-                        input: { color: "#fff" }, // cor do texto digitado
-                        label: { color: "#aaa" }, // cor do label
-                        '& label.Mui-focused': { color: "#4F46E5" }, // cor do label quando focado
-                        '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: "#555", // borda padrão
-                            },
-                            '&:hover fieldset': {
-                              borderColor: "#777", // borda ao passar o mouse
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: "#07741d", // borda ao focar
-                            },
-                        },
-                        '& .MuiFormHelperText-root': {
-                          color: "#ccc", // texto de ajuda (helperText)
-                        }
-                    }}
-                />
-                <TextField
-                    label="Nova Senha"
-                    variant="outlined"
-                    fullWidth
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    helperText="Deixe em branco se não quiser alterar a senha"
-                    theme={theme}
-                    sx={{
-                        input: { color: "#fff" },
-                        label: { color: "#aaa" },
-                        "& label.Mui-focused": { color: "#07741d" },
-                        "& .MuiOutlinedInput-root": {
-                            "& fieldset": { borderColor: "#555" },
-                            "&:hover fieldset": { borderColor: "#777" },
-                            "&.Mui-focused fieldset": { borderColor: "#07741d" },
-                        },
-                        "& .MuiFormHelperText-root": { color: "#ccc" },
-                    }}
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <IconButton
-                                    onClick={() => setShowPassword((prev) => !prev)}
-                                    edge="end"
-                                    sx={{ color: "#aaa" }}
-                                >
-                                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                                </IconButton>
-                            </InputAdornment>
-                        ),
-                    }}
-                />
-                <TextField
-                    label="Senha Atual"
-                    variant="outlined"
-                    fullWidth
-                    type={showCurrentPassword ? "text" : "password"}
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    helperText="Necessária para alterar email ou senha"
-                    theme={theme}
-                    sx={{
-                        input: { color: "#fff" }, // cor do texto digitado
-                        label: { color: "#aaa" }, // cor do label
-                        '& label.Mui-focused': { color: "#4F46E5" }, // cor do label quando focado
-                        '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: "#555", // borda padrão
-                            },
-                            '&:hover fieldset': {
-                              borderColor: "#777", // borda ao passar o mouse
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: "#07741d", // borda ao focar
-                            },
-                        },
-                        '& .MuiFormHelperText-root': {
-                          color: "#ccc", // texto de ajuda (helperText)
-                        }
-                    }}
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <IconButton
-                                    onClick={() => setShowCurrentPassword((prev) => !prev)}
-                                    edge="end"
-                                    sx={{ color: "#aaa" }}
-                                >
-                                    {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
-                                </IconButton>
-                            </InputAdornment>
-                        ),
-                    }}
-                />
-                <FormControlLabel
-                    control={
-                        <Switch
-                            checked={notifications}
-                            onChange={(e) => setNotifications(e.target.checked)}
-                            color="primary"
-                        />
-                    }
-                    label="Notificações"
-                />
-                <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    disabled={loading}
-                >
-                    {loading ? "Atualizando..." : "Salvar Alterações"}
-                </Button>
-                {message && (
-                    <Typography
-                        variant="body2"
-                        color={message.startsWith("Erro") ? "error" : "primary"}
+      <Box
+        component="form"
+        onSubmit={handleSubmit(onSubmit)}
+        sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+      >
+        {/* --------- Dados pessoais --------- */}
+        <Controller
+          name="name"
+          control={control}
+          rules={{ required: "Nome é obrigatório" }}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label="Nome Completo"
+              fullWidth
+              error={!!errors.name}
+              helperText={errors.name?.message}
+              sx={textFieldSX}
+            />
+          )}
+        />
+
+        <Controller
+          name="username"
+          control={control}
+          rules={{ required: "Usuário é obrigatório" }}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label="Nome de Usuário"
+              fullWidth
+              error={!!errors.username}
+              helperText={
+                errors.username?.message ||
+                "Usado para identificá‑lo no sistema"
+              }
+              sx={textFieldSX}
+            />
+          )}
+        />
+
+        <Controller
+          name="email"
+          control={control}
+          rules={{
+            required: "E‑mail é obrigatório",
+            pattern: { value: /^\S+@\S+$/i, message: "E‑mail inválido" },
+          }}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label="Email"
+              fullWidth
+              error={!!errors.email}
+              helperText={errors.email?.message}
+              sx={textFieldSX}
+            />
+          )}
+        />
+
+        <Divider sx={{ borderColor: "#2f3336", my: 2 }} />
+
+        {/* --------- Senhas --------- */}
+        <Controller
+          name="newPassword"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              type={showNewPass ? "text" : "password"}
+              label="Nova Senha"
+              fullWidth
+              helperText="Deixe em branco se não quiser alterar"
+              sx={textFieldSX}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowNewPass((p) => !p)}
+                      edge="end"
+                      sx={{ color: "#aaa" }}
                     >
-                        {message}
-                    </Typography>
-                )}
+                      {showNewPass ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          )}
+        />
+
+        <Controller
+          name="currentPassword"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              type={showCurrPass ? "text" : "password"}
+              label="Senha Atual"
+              fullWidth
+              helperText="Necessária para alterar e‑mail ou senha"
+              sx={textFieldSX}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowCurrPass((p) => !p)}
+                      edge="end"
+                      sx={{ color: "#aaa" }}
+                    >
+                      {showCurrPass ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          )}
+        />
+
+        <Divider sx={{ borderColor: "#2f3336", my: 2 }} />
+
+        {/* --------- Água --------- */}
+        <Typography variant="h6" gutterBottom>
+          Configurações de Água
+        </Typography>
+
+        {/* Meta diária */}
+        <Controller
+          name="waterGoal"
+          control={control}
+          render={({ field }) => (
+            <Box>
+              <Stack direction="row" justifyContent="space-between">
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Droplets size={18} />
+                  <Typography>Meta Diária</Typography>
+                </Stack>
+                <Typography sx={{ color: green }}>{field.value} L</Typography>
+              </Stack>
+              <Slider
+                {...field}
+                value={field.value}
+                onChange={(_, v) => field.onChange(v)}
+                step={10}
+                min={50}
+                max={300}
+                sx={sliderSX}
+              />
             </Box>
-        </Paper>
-    );
+          )}
+        />
+
+        {/* Limite de alerta */}
+        <Controller
+          name="alertThreshold"
+          control={control}
+          render={({ field }) => (
+            <Box>
+              <Stack direction="row" justifyContent="space-between">
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Bell size={18} />
+                  <Typography>Limite de Alerta</Typography>
+                </Stack>
+                <Typography sx={{ color: green }}>
+                  {field.value} L/min
+                </Typography>
+              </Stack>
+              <Slider
+                {...field}
+                value={field.value}
+                onChange={(_, v) => field.onChange(v)}
+                step={1}
+                min={1}
+                max={10}
+                sx={sliderSX}
+              />
+            </Box>
+          )}
+        />
+
+        {/* Notificações */}
+        <Controller
+          name="notifications"
+          control={control}
+          render={({ field }) => (
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Bell size={18} />
+                <Typography>Notificações</Typography>
+              </Stack>
+              <Switch
+                checked={field.value}
+                onChange={(e) => field.onChange(e.target.checked)}
+                color="success"
+              />
+            </Stack>
+          )}
+        />
+
+        {/* --------- Submit --------- */}
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          disabled={isSubmitting}
+          startIcon={isSubmitting && <CircularProgress size={18} />}
+          sx={{ bgcolor: green, "&:hover": { bgcolor: "#169946" }, py: 1.5 }}
+        >
+          <Save size={18} />
+          {isSubmitting ? "Atualizando..." : "Salvar Tudo"}
+        </Button>
+
+        {errors.root && (
+          <Typography variant="body2" color="error">
+            {errors.root.message}
+          </Typography>
+        )}
+      </Box>
+    </Paper>
+  );
 }

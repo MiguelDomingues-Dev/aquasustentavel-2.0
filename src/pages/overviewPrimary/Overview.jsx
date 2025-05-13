@@ -9,7 +9,7 @@ const HamburgerMenu = lazy(() => import('../../ui/components/menuHamburguer/Menu
 const NavBar = lazy(() => import('../../ui/components/navbar/NavBar'));
 const Cards = lazy(() => import('../../ui/components/cards/Cards'));
 const Historico = lazy(() => import('../../ui/components/historico/Historico'));
-const ClimaTempo = lazy(() => import('../../ui/components/climaTempo/ClimaTempo'));
+const DashboardSensor = lazy(() => import('../../ui/components/dashboardSensor/DashboardSensor'));
 
 export default function Overview() {
   // Define o breakpoint para telas pequenas; por exemplo, abaixo de 768px será considerado mobile.
@@ -21,6 +21,7 @@ export default function Overview() {
         {/* Renderiza o HamburgerMenu em telas pequenas, caso contrário, a SideBar */}
         {isMobile ? <HamburgerMenu /> : <SideBar />}
         <NavBar />
+        
         <Suspense fallback={<Loading />}>
           <Cards />
         </Suspense>
@@ -29,7 +30,7 @@ export default function Overview() {
             <Historico />
           </Suspense>
           <Suspense fallback={<Loading />}>
-            <ClimaTempo />
+            <DashboardSensor />
           </Suspense>
         </div>
       </div>

@@ -1,96 +1,106 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, Typography } from "@mui/material";
 import { MdWaterDrop } from "react-icons/md";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getDatabase, ref, onValue, get } from "firebase/database";
-import { database } from "../../../services/firebase";
-import './cards.css';
+import { getDatabase, ref, onValue, off } from "firebase/database";
+import "./cards.css";
 
 export default function Cards() {
-  const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const auth = getAuth();
-  const db = getDatabase();
+  const [fluxoLps, setFluxoLps]       = useState(0);   // litros / segundo
+  const [consumoTotal, setConsumo]    = useState(0);   // litros
+  const [mediaHoje, setMediaHoje]     = useState(0);   // litros
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const userRef = ref(db, `usuarios/${user.uid}`);
-        try {
-          const snapshot = await get(userRef);
-          if (snapshot.exists()) {
-            setUserData(snapshot.val());
-          } else {
-            console.log("Nenhum dado encontrado para este usuário.");
-          }
-        } catch (error) {
-          console.error("Erro ao buscar dados do usuário:", error);
-        }
-      }
-      setLoading(false);
+    const auth = getAuth();
+    const db   = getDatabase();
+
+    /* espera autenticação */
+    const unsubAuth = onAuthStateChanged(auth, (user) => {
+      if (!user) return;
+
+      /* ---- Listener em /dados ---- */
+      const dadosRef = ref(db, `usuarios/${user.uid}/dados`);
+      const unsubDados = onValue(dadosRef, (snap) => {
+        const d = snap.val() || {};
+        setFluxoLps(d.fluxo_lps || 0);
+        setConsumo(d.consumo_L || 0);
+      });
+
+      /* ---- Listener em /historicoHoje ---- */
+      const histRef = ref(db, `usuarios/${user.uid}/historicoHoje`);
+      const unsubHist = onValue(histRef, (snap) => {
+        const obj = snap.val() || {};
+
+        // obj = { Sun: 12.5, Mon: 8.1, ... }  → média dos valores != 0
+        const vals = Object.values(obj).filter((v) => typeof v === "number");
+        const media = vals.length ? (vals.reduce((a, b) => a + b, 0) / vals.length) : 0;
+        setMediaHoje(media);
+      });
+
+      /* cleanup quando usuário sai */
+      return () => {
+        off(dadosRef);
+        off(histRef);
+      };
     });
-    return () => unsubscribe();
-  }, [auth, db]);
 
-  if (loading) {
-    return <p>Carregando...</p>;
-  }
+    return () => unsubAuth();
+  }, []);
 
-  // Calcula a média dos valores de "historicoHoje", se existir
-  let mediaHistorico = 0;
-  if (userData && userData.historicoHoje && userData.historicoHoje.length > 0) {
-    const total = userData.historicoHoje.reduce((acc, cur) => acc + cur.valor, 0);
-    mediaHistorico = (total / userData.historicoHoje.length).toFixed(2);
-  }
+  /* conversão p/ L/min:  1 L/s = 60 L/min */
+  const fluxoLmin = (fluxoLps * 60).toFixed(2);
 
   return (
     <div className="containerCard">
-      <Card 
-        sx={{ 
-          backgroundColor: "rgba(0, 178, 27, 0.69)", 
-          color: "white", 
-          padding: 2, 
-          width: { xs: "90%", sm: "300px" }, 
-          textAlign: "center" 
+      {/* Fluxo */}
+      <Card
+        sx={{
+          backgroundColor: "rgba(0, 178, 27, 0.69)",
+          color: "white",
+          p: 2,
+          width: { xs: "90%", sm: "300px" },
+          textAlign: "center",
         }}
       >
         <Typography variant="h6">Fluxo de Água</Typography>
         <Typography variant="h4" fontWeight="bold">
-          {userData?.fluxoAtual || 0} L/min
+          {fluxoLmin} L/min
         </Typography>
       </Card>
 
-      <Card 
-        sx={{ 
-          backgroundColor: "rgba(9, 132, 193, 0.49)", 
-          color: "white", 
-          padding: 2, 
-          width: { xs: "90%", sm: "300px" }, 
-          textAlign: "center" 
+      {/* Consumo total */}
+      <Card
+        sx={{
+          backgroundColor: "rgba(9, 132, 193, 0.49)",
+          color: "white",
+          p: 2,
+          width: { xs: "90%", sm: "300px" },
+          textAlign: "center",
         }}
       >
         <Typography variant="h6">
           <MdWaterDrop /> Consumo Total
         </Typography>
         <Typography variant="h4" fontWeight="bold">
-          {userData?.consumoTotal || 0} L
+          {consumoTotal.toFixed(2)} L
         </Typography>
       </Card>
 
-      <Card 
-        sx={{ 
-          backgroundColor: "rgba(9, 132, 193, 0.49)", 
-          color: "white", 
-          padding: 2, 
-          width: { xs: "90%", sm: "300px" }, 
-          textAlign: "center" 
+      {/* Média do histórico de hoje */}
+      <Card
+        sx={{
+          backgroundColor: "rgba(9, 132, 193, 0.49)",
+          color: "white",
+          p: 2,
+          width: { xs: "90%", sm: "300px" },
+          textAlign: "center",
         }}
       >
         <Typography variant="h6">
           <MdWaterDrop /> Média do Histórico de Hoje
         </Typography>
         <Typography variant="h4" fontWeight="bold">
-          {mediaHistorico} L
+          {mediaHoje.toFixed(2)} L
         </Typography>
       </Card>
     </div>

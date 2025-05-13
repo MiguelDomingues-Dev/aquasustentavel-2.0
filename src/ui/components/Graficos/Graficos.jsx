@@ -1,93 +1,138 @@
-import React, { useState, useEffect } from "react";
-import { Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Typography, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  BarChart,
-  Bar
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from "recharts";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getDatabase, ref, onValue } from "firebase/database";
+import { ref, onValue } from "firebase/database";
 import { database } from "../../../services/firebase";
 
 export default function DashboardWidget() {
   const [data, setData] = useState([]);
-  const [fluxo, setFluxo] = useState(0);
-  const [consumoTotal, setConsumoTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
-
-  const auth = getAuth();
-  const db = getDatabase();
+  const [totalUsage, setTotalUsage] = useState(0);
+  const [averageUsage, setAverageUsage] = useState(0);
+  const [period, setPeriod] = useState("day");
 
   useEffect(() => {
+    const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        const userRef = ref(database, `usuarios/${user.uid}`);
+        const pathMap = {
+          day: "historicoHoje",
+          week: "historicoSemana",
+          month: "historicoMes",
+        };
+
+        const selectedPath = pathMap[period] || "historicoHoje";
+        const userRef = ref(database, `usuarios/${user.uid}/${selectedPath}`);
+
         onValue(userRef, (snapshot) => {
-          const val = snapshot.val();
-          if (val) {
-            setFluxo(val.fluxoAtual || 0);
-            setConsumoTotal(val.consumoTotal || 0);
-            setData(val.historicoHoje || []);
-          }
+          const historico = snapshot.val() || {};
+          const formattedData = Object.entries(historico).map(([key, val]) => ({
+            day: key,
+            usage: val,
+          }));
+
+          setData(formattedData);
+
+          const total = formattedData.reduce((acc, curr) => acc + curr.usage, 0);
+          const average = formattedData.length ? total / formattedData.length : 0;
+
+          setTotalUsage(total.toFixed(1));
+          setAverageUsage(average.toFixed(1));
         });
       }
-      setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [auth, db]);
+  }, [period]); // Atualiza quando 'period' mudar
 
-  if (loading) {
-    return <p>Carregando...</p>;
-  }
+  const handleChange = (_, newPeriod) => {
+    if (newPeriod !== null) {
+      setPeriod(newPeriod);
+    }
+  };
 
   return (
-    <div className="contaneirGraficos  rounded-xl scroll-container" style={{ display: "flex", flexDirection: "column", gap: "1rem", width: "800px",  overflowY: "auto"  }}>
-      
-      {/* Card de informações gerais */}
-      <div className="bg-gray-800 p-4 rounded-xl" style={{ color: "#fff", textAlign: "center" }}>
-        <Typography variant="h6">Fluxo de Água</Typography>
-        <Typography variant="h4" fontWeight="bold">{fluxo} L/min</Typography>
-        <Typography variant="h6" mt={1}>Consumo Total</Typography>
-        <Typography variant="h4" fontWeight="bold">{consumoTotal} L</Typography>
-      </div>
+    <div className="analytics-card" style={{
+      background: "#12161c",
+      color: "#fff",
+      padding: "1.5rem",
+      borderRadius: "1rem",
+      width: "100%",
+      maxWidth: "800px"
+    }}>
+      <Typography variant="h6" style={{
+        color: "#18e07f",
+        fontWeight: "bold",
+        marginBottom: "1rem"
+      }}>
+        📊 Water Usage Analytics
+      </Typography>
 
-      {/* Gráfico de Linha com scroll interno */}
-      <div className="bg-gray-800 p-4 rounded-xl" style={{ color: "#fff", textAlign: "center", maxHeight: "320px" }}>
-        <Typography variant="h6" className="text-xl font-bold mb-2">Gráfico de Linha</Typography>
-        <div style={{ minWidth: "600px", height: "250px" }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data}>
-              <CartesianGrid strokeDasharray="5 5" stroke="#ccc" />
-              <XAxis dataKey="hora" stroke="#fff" />
-              <YAxis stroke="#fff" />
-              <Tooltip />
-              <Line type="monotone" dataKey="valor" stroke="#4F46E5" strokeWidth={3} />
-            </LineChart>
-          </ResponsiveContainer>
+      <ToggleButtonGroup
+        value={period}
+        exclusive
+        onChange={handleChange}
+        sx={{
+          background: "#181c20",
+          borderRadius: "8px",
+          marginBottom: "1rem",
+          display: "flex",
+          justifyContent: "space-around"
+        }}
+      >
+        <ToggleButton value="day" sx={{
+          color: "#fff",
+          border: "none",
+          backgroundColor: period === "day" ? "#2a2f35" : "transparent",
+          borderRadius: "10px",
+          px: 3
+        }}>📅 Day</ToggleButton>
+        <ToggleButton value="week" sx={{
+          color: "#fff",
+          border: "none",
+          backgroundColor: period === "week" ? "#2a2f35" : "transparent",
+          borderRadius: "10px",
+          px: 3
+        }}>🗓 Week</ToggleButton>
+        <ToggleButton value="month" sx={{
+          color: "#fff",
+          border: "none",
+          backgroundColor: period === "month" ? "#2a2f35" : "transparent",
+          borderRadius: "10px",
+          px: 3
+        }}>📊 Month</ToggleButton>
+      </ToggleButtonGroup>
+
+      <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
+        <div style={{ flex: 1, background: "#1e2329", padding: "1rem", borderRadius: "10px" }}>
+          <Typography variant="body2">Total Usage</Typography>
+          <Typography variant="h5" fontWeight="bold" sx={{ color: "#18e07f" }}>{totalUsage} L</Typography>
+        </div>
+        <div style={{ flex: 1, background: "#1e2329", padding: "1rem", borderRadius: "10px" }}>
+          <Typography variant="body2">Average</Typography>
+          <Typography variant="h5" fontWeight="bold" sx={{ color: "#18e07f" }}>{averageUsage} L</Typography>
         </div>
       </div>
 
-      {/* Gráfico de Barras com scroll interno */}
-      <div className="bg-gray-800 p-4 rounded-xl" style={{ color: "#fff", textAlign: "center", maxHeight: "320px"}}>
-        <Typography variant="h6" className="text-xl font-bold mb-2">Gráfico de Barras</Typography>
-        <div style={{ minWidth: "600px", height: "250px" }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
-              <XAxis dataKey="hora" stroke="#fff" />
-              <YAxis stroke="#fff" />
-              <Tooltip />
-              <Bar dataKey="valor" fill="#00B21B" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+      <div style={{ width: "100%", height: 300 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#2a2a2a" />
+            <XAxis dataKey="day" stroke="#ccc" />
+            <YAxis stroke="#ccc" />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "#222",
+                border: "none",
+                color: "#fff"
+              }}
+              labelStyle={{ color: "#18e07f" }}
+            />
+            <Bar dataKey="usage" fill="#18e07f" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );

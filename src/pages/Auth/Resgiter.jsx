@@ -28,6 +28,39 @@ export default function Register() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [passwordVisible, setPasswordVisible] = useState(false);
+    // Dados iniciais dos históricos
+    const historicoHoje = {
+        "Sun": 0,
+        "Mon": 0,
+        "Tue": 0,
+        "Wed": 0,
+        "Thu": 0,
+        "Fri": 0,
+        "Sat": 0,
+    };
+
+    const historicoSemanal = {
+        "Week 1": 0,
+        "Week 2": 0,
+        "Week 3": 0,
+        "Week 4": 0
+    };
+
+    const historicoMes = {
+        "January": 0,
+        "February": 0,
+        "March": 0,
+        "April": 0,
+        "May": 0,
+        "June": 0,
+        "July": 0,
+        "August": 0,
+        "September": 0,
+        "October": 0,
+        "November": 0,
+        "December": 0
+    };
+
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
 
@@ -67,6 +100,9 @@ export default function Register() {
                 email,
                 nameUser,
                 nameComplett,
+                historicoHoje,
+                historicoSemanal,
+                historicoMes,
                 criadoEm: new Date().toISOString()
             });
         
