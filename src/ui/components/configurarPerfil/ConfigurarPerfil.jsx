@@ -24,6 +24,7 @@ import {
   EmailAuthProvider,
   reauthenticateWithCredential,
 } from "firebase/auth";
+import { getDatabase, ref, set } from "firebase/database";  // <‑‑ NOVO
 import { auth, db } from "../../../services/firebase";
 import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 
@@ -45,7 +46,6 @@ export default function ProfileSettings() {
     handleSubmit,
     reset,
     setError,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm({ defaultValues });
 
@@ -97,10 +97,7 @@ export default function ProfileSettings() {
 
     try {
       /* reautenticação se necessário */
-      if (
-        (data.email && data.email !== user.email) ||
-        data.newPassword
-      ) {
+      if ((data.email && data.email !== user.email) || data.newPassword) {
         await reauth(data.currentPassword);
       }
 
@@ -119,6 +116,14 @@ export default function ProfileSettings() {
         waterGoal: data.waterGoal,
         alertThreshold: data.alertThreshold,
         updatedAt: serverTimestamp(),
+      });
+
+      /* ---------- Realtime DB ---------- */
+      const rtdb = getDatabase();
+      await set(ref(rtdb, `usuarios/${user.uid}/config`), {
+        waterGoal: data.waterGoal,
+        alertThreshold: data.alertThreshold,
+        notifications: data.notifications,
       });
 
       reset({ ...data, newPassword: "", currentPassword: "" });
@@ -157,6 +162,7 @@ export default function ProfileSettings() {
         p: 3,
         color: "#d1d5db",
         maxWidth: 600,
+        height: 900,
         mx: "auto",
         mt: 4,
       }}
@@ -350,11 +356,7 @@ export default function ProfileSettings() {
           name="notifications"
           control={control}
           render={({ field }) => (
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              alignItems="center"
-            >
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Stack direction="row" spacing={1} alignItems="center">
                 <Bell size={18} />
                 <Typography>Notificações</Typography>
@@ -374,10 +376,10 @@ export default function ProfileSettings() {
           variant="contained"
           fullWidth
           disabled={isSubmitting}
-          startIcon={isSubmitting && <CircularProgress size={18} />}
+          startIcon={<Save size={18} />}
+          endIcon={isSubmitting && <CircularProgress size={18} />}
           sx={{ bgcolor: green, "&:hover": { bgcolor: "#169946" }, py: 1.5 }}
         >
-          <Save size={18} />
           {isSubmitting ? "Atualizando..." : "Salvar Tudo"}
         </Button>
 
